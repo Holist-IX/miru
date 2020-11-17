@@ -9,12 +9,14 @@ Faucet Configuration Generator
 
 
 <?php $this->section( 'content' ) ?>
-<style>.loading { 
-  font-size: 1.5em; 
-} </style>
+<style>
+    .loading {
+        font-size: 1.5em;
+    }
+</style>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h3>Faucet config generator and tester</h3>
-    
+
 </div>
 <div class="container-fluid">
     <div class="col-sm-12">
@@ -24,7 +26,8 @@ Faucet Configuration Generator
                     <h4>Faucet Configuration Generator </h4>
                 </div>
                 <div class="row tw-mb-6">
-                    <p>Open diagramming component. Please verify that all members connected to switches have an ipv4 and ipv6 address</p>
+                    <p>Open diagramming component. Please verify that all members connected to switches have an ipv4 and
+                        ipv6 address</p>
                 </div>
                 <div class="row tw-mb-6">
                     <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@MxGraph' ) ?>"> To Diagramming </a>
@@ -66,5 +69,4 @@ Faucet Configuration Generator
 <script type="text/javascript" src="js/faucet.js"></script>
 
 
-<?php $this->append() ?> 
-
+<?php $this->append() ?>

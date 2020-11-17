@@ -3769,6 +3769,7 @@ EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
 };
 
 /**
+ * SDNIXP
  * Shows add link menu
  */
 EditorUi.prototype.showAddLinkDialog = function(cell, btnLabel, fn)

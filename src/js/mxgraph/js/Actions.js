@@ -83,7 +83,12 @@ Actions.prototype.init = function()
 	this.addAction('print...', function() { ui.showDialog(new PrintDialog(ui).container, 300, 180, true, true); }, null, 'sprite-print', Editor.ctrlKey + '+P');
 	this.addAction('connectixp', function() {new ixpapi(ui)});
 	this.addAction('umbrella', function() {new Umbrella(ui)});
-	this.addAction('tester', function() {new docker(ui)});
+	this.addAction('tester', function() {new docker(ui).tester()});
+	this.addAction('testeroutput', function() {
+		var dlg = new ShowOutputDialog(ui, "Confirm");
+		ui.showDialog(dlg.container, 750, 500, true, false, null, false);
+		dlg.init()
+	});
 
 	this.addAction('preview', function() { mxUtils.show(graph, null, 10, 10); });
 

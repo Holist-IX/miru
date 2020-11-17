@@ -5,27 +5,31 @@ function display() {
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([data], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'faucet.txt';
+            a.download = "faucet.txt";
             a.click();
             // alert(data);
-            if (!document.getElementById('done')) {
+            if (!document.getElementById("done")) {
                 appendLinks();
             }
-            
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
 
-function appendLinks(){
+function appendLinks() {
     var a = document.getElementById("toAdd");
-    var funcs = ["getYaml()", "getTopology()", "getLogs()"]
-    var textList = ["Download faucet.yaml", "Download topology.json", 
-                    "Download latest log"]
-    
+    var funcs = ["getYaml()", "getTopology()", "getLogs()"];
+    var textList = [
+        "Download faucet.yaml",
+        "Download topology.json",
+        "Download latest log",
+    ];
+
     index = 0;
 
     for (var f of funcs) {
@@ -34,16 +38,15 @@ function appendLinks(){
         var btn = document.createElement("a");
         btn.setAttribute("class", "btn btn-white ml-2");
         btn.setAttribute("onclick", f);
-        btn.text =textList[index];
+        btn.text = textList[index];
         r.appendChild(btn);
         a.appendChild(r);
         index++;
-    };
+    }
     var r = document.createElement("div");
     r.setAttribute("class", "row tw-mb-6");
     r.setAttribute("id", "done");
     a.appendChild(r);
-
 }
 
 function getYaml() {
@@ -53,15 +56,16 @@ function getYaml() {
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([data], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'faucet.yaml';
+            a.download = "faucet.yaml";
             a.click();
-            
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
 
 function getTopology() {
@@ -71,14 +75,16 @@ function getTopology() {
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([data], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'topology.json';
+            a.download = "topology.json";
             a.click();
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
 
 function getLogs() {
@@ -88,17 +94,17 @@ function getLogs() {
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([data], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'logs.txt';
+            a.download = "logs.txt";
             a.click();
-            
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
-
 
 function getXML() {
     let url = encodeURI("sdnixp/getXML");
@@ -107,18 +113,19 @@ function getXML() {
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([data], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'graph.xml';
+            a.download = "graph.xml";
             a.click();
-            
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
 
 function openMxGraph() {
-    let url= window.location.origin + "/mxgraph";
+    let url = window.location.origin + "/mxgraph";
     window.open(url, "_self");
 }

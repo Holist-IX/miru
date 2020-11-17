@@ -3,6 +3,7 @@ alreadyConnected=Nodes already connected
 cancel=Cancel
 connectixp=Connect to IXP Manager
 umbrella=Generate Faucet Config
+testeroutput=Run push-on-green with output
 tester=Run push-on-green module
 close=Close
 collapse-expand=Collapse/Expand

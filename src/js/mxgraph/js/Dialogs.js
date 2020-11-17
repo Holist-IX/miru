@@ -1918,9 +1918,6 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 		inner.style.paddingRight = '20px';
 	}
 
-	// console.log(`Link Value`)
-	// console.log(cell.value.getAttribute('link'));
-
 	linkVal = cell.value.getAttribute('link');
 	linkValArray = linkVal.split(',')
 
@@ -1996,6 +1993,82 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 			// Update the label
 			graph.cellLabelChanged(cell, newVal);
 		}
+		
+		editorUi.hideDialog.apply(editorUi, arguments);
+	});
+
+	mainBtn.className = 'geBtn gePrimaryBtn';
+	btns.appendChild(mainBtn);
+
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	div.appendChild(btns);
+
+	this.container = div;
+};
+
+
+/* 
+ * SDNIXP
+ */
+
+var ShowOutputDialog = function(editorUi, btnLabel)
+{
+
+	var div = document.createElement('div');
+	var dockerAPI = new docker(editorUi);
+	
+	var inner = document.createElement('div');
+	inner.className = 'geTitle';
+	inner.style.backgroundColor = 'transparent';
+	inner.style.borderColor = 'transparent';
+	inner.style.whiteSpace = 'nowrap';
+	inner.style.textOverflow = 'clip';
+	inner.style.cursor = 'default';
+	inner.style.paddingBottom = '16px';
+	inner.style.fontSize = '16px';
+
+	mxUtils.write(inner, 'Topology Tester output');
+
+	var output = document.createElement('div');
+
+	var textarea = document.createElement('textarea');
+
+	textarea.style.height = '415px';
+	textarea.style.width = '755px';
+	textarea.readOnly = true;
+
+	output.appendChild(textarea);
+
+	div.appendChild(inner);
+
+	div.appendChild(output);
+
+	var btns = document.createElement('div');
+	btns.style.marginTop = '18px';
+	btns.style.textAlign = 'right';
+
+	// Empty function to be compatible with the other dialogs
+	this.init = function()
+	{
+		dockerAPI.testerOutput(textarea);
+	};
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	cancelBtn.className = 'geBtn';
+
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	var mainBtn = mxUtils.button(btnLabel, function()
+	{
 		
 		editorUi.hideDialog.apply(editorUi, arguments);
 	});

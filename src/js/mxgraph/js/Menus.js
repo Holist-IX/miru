@@ -484,7 +484,7 @@ Menus.prototype.init = function()
 	{
 		this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import', 
 								 'importYAML', 'export', '-', 'pageSetup', 'print','-',
-								 'umbrella','tester'], parent);
+								 'umbrella','tester','testeroutput'], parent);
 	})));
 	this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 	{

@@ -53,6 +53,25 @@ class SDNIXPController extends Controller
         return $out;
     }
 
+    public function testConfigWithOutput()
+    {
+        header('X-Accel-Buffering: no');
+        $proc = popen("bash /home/ixpman/code/networkTester/ixpman.sh output", 'r');
+
+        $live_output     = "";
+        $complete_output = "";
+
+        while (!feof($proc))
+        {
+            $live_output     = fread($proc, 1024);
+            $complete_output = $complete_output . $live_output;
+            echo $live_output;
+            @ flush();
+        }
+
+        pclose($proc);
+    }
+
     public function getFaucetYaml()
     {
         $fpath = "/home/ixpman/code/networkTester/etc/faucet/faucet.yaml";
