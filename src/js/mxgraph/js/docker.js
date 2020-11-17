@@ -6,69 +6,46 @@ function docker(ui) {
 };
 
 docker.prototype.getLogs = function () {
-    let url = window.location.origin + "/faucet/getLatestLogs";
-    console.log(url);
-    var result = null;
+    let url = window.location.origin + "/sdnixp/getLatestLogs";
+
     $.ajax(url)
         .done(function (data) {
             var a = document.createElement("a");
-            var file = new Blob([msg], {type: 'text/plain'});
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
             a.href = URL.createObjectURL(file);
-            a.download = 'logs.txt';
+            a.download = "logs.txt";
             a.click();
         })
-        .fail(function (){
+        .fail(function () {
             alert("Something went wrong");
-        })
+        });
 }
 
-function testReq(d) {
-    let phpurl = window.location.origin + "/faucet/testReq";
-
-    var t = {"this": "works"}
-    $.ajax({
-        url: phpurl,
-        type: "POST",
-        data: d,
-    }).done(function(msg){
-        console.log(msg)
-            var a = document.createElement("a");
-            var file = new Blob([msg], {type: 'text/plain'});
-            a.href = URL.createObjectURL(file);
-            a.download = 'logs.txt';
-            a.click();
-    })
-    .fail(function(){
-        alert("something went wrong")
-    })
-}
-
-
-docker.prototype.tester = function(d) {
-    let phpurl = window.location.origin + "/faucet/generateConfig";
-    $.ajax(phpurl).done(function(msg){
-        console.log(msg)
+docker.prototype.tester = function (d) {
+    let phpurl = window.location.origin + "/sdnixp/generateConfig";
+    $.ajax(phpurl).done(function (msg) {
             alert(msg);
-    })
-    .fail(function(){
-        alert("something went wrong")
-    })
-}
+        })
+        .fail(function () {
+            alert("something went wrong")
+        })
+};
 
-docker.prototype.testerOutput = function(textarea) {
+docker.prototype.testerOutput = function (textarea, btns) {
 
     xhr = new XMLHttpRequest();
     let url = window.location.origin + "/sdnixp/testConfigWithOutput";
-    var oldVal = ""
-    var newVal = ""
+    var oldVal = "";
+    var newVal = "";
+    let me = this;
     xhr.open("GET", url, true);
     xhr.onprogress = function (e) {
         var resp = e.currentTarget.responseText;
         newVal = resp.replace(oldVal, "");
         var text = document.createTextNode(newVal);
         oldVal = resp;
-        tag.appendChild(text);
-        r.append(tag);
         textarea.append(text);
         textarea.scrollTop = textarea.scrollHeight;
 
@@ -76,7 +53,62 @@ docker.prototype.testerOutput = function(textarea) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             console.log("Complete = " + xhr.responseText);
+            me.addButtons(btns);
         }
     };
     xhr.send();
+};
+
+docker.prototype.addButtons = function (btns) {
+    var getYamlbtn = this.createButton("Download YAML config", this.getYaml);
+    btns.insertBefore(getYamlbtn, btns.firstChild);
+    var getTopologyConfig = this.createButton("Download Topology json", this.getTopologyConfig);
+    btns.insertBefore(getTopologyConfig, btns.firstChild);
+    var getLogbtn = this.createButton("Download logs", this.getLogs);
+    btns.insertBefore(getLogbtn, btns.firstChild);
+};
+
+docker.prototype.getYaml = function () {
+    let url = window.location.origin + "/sdnixp/getFaucetYaml";
+
+    $.ajax(url)
+        .done(function (data) {
+            var a = document.createElement("a");
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
+            a.href = URL.createObjectURL(file);
+            a.download = "faucet.yaml";
+            a.click();
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+};
+
+docker.prototype.getTopologyConfig = function () {
+    let url = window.location.origin + "/sdnixp/getTopologyJson";
+
+    $.ajax(url)
+        .done(function (data) {
+            var a = document.createElement("a");
+            var file = new Blob([data], {
+                type: "text/plain"
+            });
+            a.href = URL.createObjectURL(file);
+            a.download = "topology.json";
+            a.click();
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+};
+
+docker.prototype.createButton = function (label, func) {
+    var button = document.createElement('button');
+    mxUtils.write(button, label);
+    button.className = "geBtn";
+    button.onclick = func;
+
+    return button;
 }

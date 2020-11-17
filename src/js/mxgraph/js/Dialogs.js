@@ -2054,7 +2054,7 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 	// Empty function to be compatible with the other dialogs
 	this.init = function()
 	{
-		dockerAPI.testerOutput(textarea);
+		dockerAPI.testerOutput(textarea, btns);
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
