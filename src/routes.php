@@ -19,6 +19,7 @@ Route::group( [ 'prefix' => 'sdnixp' ], function() {
     Route::post(    'saveTopo',             'SDNIXPController@saveTopo'             )->name( 'sdnixp@saveTopo' );
     Route::get(     'dashboard',            'SDNIXPController@dashboard'            )->name( 'sdnixp@dashboard');
     Route::get(     'testConfigWithOutput', 'SDNIXPController@testConfigWithOutput' )->name( 'sdnixp@testConfigWithOutput');
+    Route::get(     'Miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
+    Route::get(     'miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
 });
 
-// Route::get('SDNIXP', 'Belthazaar\SDNIXP\SDNIXPController@index');

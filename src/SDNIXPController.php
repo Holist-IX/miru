@@ -41,6 +41,11 @@ class SDNIXPController extends Controller
         return view('sdnixp::mxg');
     }
 
+    public function Miru(): View
+    {
+        return view('sdnixp::miru');
+    }
+
     public function generateConfig()
     {
         $process = new Process("bash /home/ixpman/code/networkTester/ixpman.sh");

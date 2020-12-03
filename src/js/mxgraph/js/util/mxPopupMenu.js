@@ -220,6 +220,7 @@ mxPopupMenu.prototype.addItem = function(title, image, funct, parent, iconCls, e
 	{
 		var img = document.createElement('img');
 		img.src = image;
+		img.style.display = inline;
 		col1.appendChild(img);
 	}
 	else if (iconCls != null)
@@ -397,6 +398,7 @@ mxPopupMenu.prototype.createSubmenu = function(parent)
 	parent.div.appendChild(parent.table);
 	
 	var img = document.createElement('img');
+	img.style.display = 'inline';
 	img.setAttribute('src', this.submenuImage);
 	
 	// Last column of the submenu item in the parent menu

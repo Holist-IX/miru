@@ -10,8 +10,9 @@ EditorUi = function(editor, container, lightbox)
 
 	this.destroyFunctions = [];
 	this.editor = editor || new Editor();
+	var con = document.getElementById('editor');
+	container = con || container;
 	this.container = container || document.body;
-
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
 
