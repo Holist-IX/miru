@@ -2031,7 +2031,7 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 	inner.style.paddingBottom = '16px';
 	inner.style.fontSize = '16px';
 
-	mxUtils.write(inner, 'Topology Tester output');
+	mxUtils.write(inner, 'Miru output');
 
 	var output = document.createElement('div');
 
@@ -2039,6 +2039,7 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 
 	textarea.style.height = '415px';
 	textarea.style.width = '755px';
+	textarea.style.border = "1px solid black"
 	textarea.readOnly = true;
 
 	output.appendChild(textarea);

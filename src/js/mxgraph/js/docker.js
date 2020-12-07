@@ -37,9 +37,11 @@ docker.prototype.testerOutput = function (textarea, btns) {
 
     xhr = new XMLHttpRequest();
     let url = window.location.origin + "/sdnixp/testConfigWithOutput";
-    var oldVal = "";
+    var oldVal = "Starting up Athos instance.\nPlease wait...\n";
     var newVal = "";
     let me = this;
+    var t = document.createTextNode(oldVal);
+    textarea.append(t);
     xhr.open("GET", url, true);
     xhr.onprogress = function (e) {
         var resp = e.currentTarget.responseText;

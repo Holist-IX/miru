@@ -86,7 +86,7 @@ Actions.prototype.init = function()
 	this.addAction('tester', function() {new docker(ui).tester()});
 	this.addAction('testeroutput', function() {
 		var dlg = new ShowOutputDialog(ui, "Confirm");
-		ui.showDialog(dlg.container, 750, 500, true, false, null, false);
+		ui.showDialog(dlg.container, 800, 575, true, false, null, false);
 		dlg.init()
 	});
 
