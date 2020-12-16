@@ -30,7 +30,7 @@ Faucet Configuration Generator
                         ipv6 address</p>
                 </div>
                 <div class="row tw-mb-6">
-                    <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@MxGraph' ) ?>"> To Diagramming </a>
+                    <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@Miru' ) ?>"> To Diagramming </a>
                 </div>
                 <div class="row tw-mb-6">
                     <p>Download the latest Faucet config that has been generated </p>
