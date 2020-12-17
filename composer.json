@@ -1,10 +1,13 @@
 {
     "name": "belthazaar/sdnixp",
+    "description" : "A package designed to be used with IXP Manager and bring the functionality of a Holistic Internet eXchange",
     "authors": [
         {
             "name": "Christoff Visser",
             "email": "christoff@iij.ad.jp"
         }
     ],
-    "require": {}
+    "require": {
+        "php" : ">=7.4"
+    }
 }
