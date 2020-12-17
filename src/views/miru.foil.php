@@ -61,7 +61,7 @@
 <?php $this->append() ?>
 
 <?php $this->section( 'page-header-preamble' ) ?>
-Faucet Configuration Generator
+Miru
 <?php $this->append() ?>
 
 

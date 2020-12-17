@@ -15,22 +15,18 @@ Faucet Configuration Generator
     }
 </style>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h3>Faucet config generator and tester</h3>
+    <h3>Miru</h3>
 
 </div>
 <div class="container-fluid">
     <div class="col-sm-12">
         <div class="row">
             <div class="col-12">
-                <div class="row tw-my-6">
-                    <h4>Faucet Configuration Generator </h4>
+                <div class="row tw-mb-6">
+                    <p>Opens Miru</p>
                 </div>
                 <div class="row tw-mb-6">
-                    <p>Open diagramming component. Please verify that all members connected to switches have an ipv4 and
-                        ipv6 address</p>
-                </div>
-                <div class="row tw-mb-6">
-                    <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@Miru' ) ?>"> To Diagramming </a>
+                    <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@Miru' ) ?>"> To Miru </a>
                 </div>
                 <div class="row tw-mb-6">
                     <p>Download the latest Faucet config that has been generated </p>
@@ -45,13 +41,13 @@ Faucet Configuration Generator
                     <a class="btn btn-white" type="button" onclick="getTopology()"> Get topology.json</a>
                 </div>
                 <div class="row tw-mb-6">
-                    <p>Download the latest logs for the most recent network simulation </p>
+                    <p>Download the latest logs for the most recent Athos simulation </p>
                 </div>
                 <div class="row tw-mb-6">
                     <a class="btn btn-white" type="button" onclick="getLogs()"> Get Logs </a>
                 </div>
                 <div class="row tw-mb-6">
-                    <p>Download the graph XML config for the most recent network simulation </p>
+                    <p>Download the graph XML config for the most recent Athos simulation </p>
                 </div>
                 <div class="row tw-mb-6">
                     <a class="btn btn-white" type="button" onclick="getXML()"> Get graph xml </a>

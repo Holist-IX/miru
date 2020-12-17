@@ -437,7 +437,7 @@
             </li>
             <li class="<?= !request()->is( 'utils/faucet' ) ?: 'active' ?>">
                 <a href="<?= route( 'sdnixp@index' ) ?>" class="nav-link">
-                    SDNIXP
+                    HIX
                 </a>
             </li>
 
