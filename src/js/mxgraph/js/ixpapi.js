@@ -321,7 +321,7 @@ ixpapi.prototype.addToSidebar = async function () {
 };
 
 ixpapi.prototype.getXML = function(editor){
-    let phpurl = window.location.origin + "/faucet/getXML"
+    let phpurl = window.location.origin + "/sdnixp/getXML"
     var request = new XMLHttpRequest();
     request.open('GET', phpurl, true);
     request.setRequestHeader('Access-Control-Allow-Origin', '*');

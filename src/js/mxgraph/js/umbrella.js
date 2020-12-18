@@ -769,7 +769,7 @@ Umbrella.prototype.saveYaml = function(yamlObj){
 };
 
 Umbrella.prototype.saveTopo = function(topo){
-    let phpurl = window.location.origin + "/faucet/saveTopo";
+    let phpurl = window.location.origin + "/sdnixp/saveTopo";
     d = JSON.stringify(topo);
     dstring = String(d);
     $.ajax({
@@ -788,7 +788,7 @@ Umbrella.prototype.saveTopo = function(topo){
 
 Umbrella.prototype.saveXml = function(){
     xmlfile = mxUtils.getXml(this.editorUi.editor.getGraphXml());
-    let phpurl = window.location.origin + "/faucet/saveXML";
+    let phpurl = window.location.origin + "/sdnixp/saveXML";
     dstring = String(xmlfile);
     $.ajax({
         url: phpurl,
