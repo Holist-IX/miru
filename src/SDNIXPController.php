@@ -48,7 +48,9 @@ class SDNIXPController extends Controller
 
     public function generateConfig()
     {
-        $process = new Process("bash /home/ixpman/code/networkTester/ixpman.sh");
+        $dir = config("custom.athos.dir", "/athos");
+        $proc_name = "$dir/ixpman.sh";
+        $process = new Process("bash $proc_name");
         $process->run();
         
         if (!$process->isSuccesful()) {
@@ -61,7 +63,9 @@ class SDNIXPController extends Controller
     public function testConfigWithOutput()
     {
         header('X-Accel-Buffering: no');
-        $proc = popen("bash /home/ixpman/code/networkTester/ixpman.sh output", 'r');
+        $dir = config("custom.athos.dir", "/athos");
+        $proc_name = "$dir/ixpman.sh output";
+        $proc = popen("bash $proc_name", 'r');
 
         $live_output     = "";
         $complete_output = "";
@@ -79,7 +83,8 @@ class SDNIXPController extends Controller
 
     public function getFaucetYaml()
     {
-        $fpath = "/home/ixpman/code/networkTester/etc/faucet/faucet.yaml";
+        $dir = config("custom.athos.dir", "/athos");
+        $fpath = "$dir/etc/faucet/faucet.yaml";
         $file = fopen($fpath, "r");
         $out = fread($file, filesize($fpath));
         fclose($file);
@@ -88,7 +93,8 @@ class SDNIXPController extends Controller
  
     public function getTopologyJson()
     {
-        $fpath = "/home/ixpman/code/networkTester/etc/mixtt/topology.json";
+        $dir = config("custom.athos.dir", "/athos");
+        $fpath = "$dir/etc/mixtt/topology.json";
         $file = fopen($fpath, "r");
         $out = fread($file, filesize($fpath));
         fclose($file);
@@ -97,7 +103,8 @@ class SDNIXPController extends Controller
  
     public function getXML()
     {
-        $fpath = "/home/ixpman/code/networkTester/etc/mixtt/graph.xml";
+        $dir = config("custom.athos.dir", "/athos");
+        $fpath = "$dir/etc/mixtt/graph.xml";
         $file = fopen($fpath, "r") or die("Unable to open the file");
         $out = fread($file,filesize($fpath));
         fclose($file);
@@ -106,7 +113,8 @@ class SDNIXPController extends Controller
  
     public function getLatestLogs()
     {
-        $fpath = "/home/ixpman/code/networkTester/ixpman_files/output.txt";
+        $dir = config("custom.athos.dir", "/athos");
+        $fpath = "$dir/ixpman_files/output.txt";
         $file = fopen($fpath, "r");
         $out = fread($file,filesize($fpath));
         fclose($file);
@@ -114,20 +122,23 @@ class SDNIXPController extends Controller
     }
  
     public function saveFaucet( Request $request) {
-        file_put_contents("/home/ixpman/code/networkTester/etc/faucet/faucet.yaml", ($request->input('msg')));
-        $out = readfile("/home/ixpman/code/networkTester/etc/faucet/faucet.yaml");
+        $dir = config("custom.athos.dir", "/athos");
+        file_put_contents("$dir/etc/faucet/faucet.yaml", ($request->input('msg')));
+        $out = readfile("$dir/etc/faucet/faucet.yaml");
         return $out;
     }
  
     public function saveTopo( Request $request) {
-        file_put_contents("/home/ixpman/code/networkTester/etc/mixtt/topology.json", ($request->input('msg')));
-        $out = readfile("/home/ixpman/code/networkTester/etc/mixtt/topology.json");
+        $dir = config("custom.athos.dir", "/athos");
+        file_put_contents("$dir/etc/mixtt/topology.json", ($request->input('msg')));
+        $out = readfile("$dir/etc/mixtt/topology.json");
         return $out;
     }
  
     public function saveXML( Request $request) {
-        file_put_contents("/home/ixpman/code/networkTester/etc/mixtt/graph.xml", ($request->input('msg')));
-        $out = readfile("/home/ixpman/code/networkTester/etc/mixtt/graph.xml");
+        $dir = config("custom.athos.dir", "/athos");
+        file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
+        $out = readfile("$dir/etc/mixtt/graph.xml");
         return $out;
     }
 

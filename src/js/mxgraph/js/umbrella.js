@@ -751,7 +751,7 @@ Umbrella.prototype.topogenerator = function(){
 }
 
 Umbrella.prototype.saveYaml = function(yamlObj){
-    let phpurl = window.location.origin + "/faucet/saveFaucet";
+    let phpurl = window.location.origin + "/sdnixp/saveFaucet";
     var d = String(yamlObj)
     $.ajax({
         url: phpurl,
