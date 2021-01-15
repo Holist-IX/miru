@@ -64,7 +64,15 @@ class SDNIXPController extends Controller
     {
         header('X-Accel-Buffering: no');
         $dir = config("custom.athos.dir", "/athos");
-        $proc_name = "$dir/ixpman.sh output";
+        if (is_dir(config("custom.urge.dir")))
+        {
+            $proc_name = "$dir/ixpman.sh urge";
+        }
+        else 
+        {
+            $proc_name = "$dir/ixpman.sh output";
+        }
+        
         $proc = popen("bash $proc_name", 'r');
 
         $live_output     = "";
