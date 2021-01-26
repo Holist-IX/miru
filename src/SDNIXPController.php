@@ -43,7 +43,15 @@ class SDNIXPController extends Controller
 
     public function Miru(): View
     {
-        return view('sdnixp::miru');
+        $URGE = false;
+        $urge_dir = config("custom.athos.dir");
+        if ($urge_dir != NULL or $urge_dir != ""){
+            $URGE = true;
+        }
+
+        return view('sdnixp::miru')->with([
+            'urge' => $URGE
+        ]);
     }
 
     public function generateConfig()
@@ -64,7 +72,8 @@ class SDNIXPController extends Controller
     {
         header('X-Accel-Buffering: no');
         $dir = config("custom.athos.dir", "/athos");
-        if (is_dir(config("custom.urge.dir")))
+        $urge_dir = config("custom.athos.dir");
+        if ($urge_dir != NULL or $urge_dir != "")
         {
             $proc_name = "$dir/ixpman.sh urge";
         }
