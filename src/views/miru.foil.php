@@ -35,6 +35,7 @@
 		// Default resources are included in grapheditor resources
 		mxLoadResources = false;
 	</script>
+	<script> use_urge = "<?= $t->urge ?>" </script>
 	<script type="text/javascript" src="mxgraph/js/Init.js"></script>
 	<script type="text/javascript" src="mxgraph/deflate/pako.min.js"></script>
 	<script type="text/javascript" src="mxgraph/deflate/base64.js"></script>

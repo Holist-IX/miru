@@ -44,7 +44,7 @@ class SDNIXPController extends Controller
     public function Miru(): View
     {
         $URGE = false;
-        $urge_dir = config("custom.athos.dir");
+        $urge_dir = config("custom.urge.dir");
         if ($urge_dir != NULL or $urge_dir != ""){
             $URGE = true;
         }
@@ -72,7 +72,7 @@ class SDNIXPController extends Controller
     {
         header('X-Accel-Buffering: no');
         $dir = config("custom.athos.dir", "/athos");
-        $urge_dir = config("custom.athos.dir");
+        $urge_dir = config("custom.urge.dir");
         if ($urge_dir != NULL or $urge_dir != "")
         {
             $proc_name = "$dir/ixpman.sh urge";
@@ -102,6 +102,16 @@ class SDNIXPController extends Controller
     {
         $dir = config("custom.athos.dir", "/athos");
         $fpath = "$dir/etc/faucet/faucet.yaml";
+        $file = fopen($fpath, "r");
+        $out = fread($file, filesize($fpath));
+        fclose($file);
+        return $out;
+    }
+
+    public function getOF()
+    {
+        $dir = config("custom.urge.dir");
+        $fpath = "$dir/rules.zip";
         $file = fopen($fpath, "r");
         $out = fread($file, filesize($fpath));
         fclose($file);

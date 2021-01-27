@@ -62,8 +62,12 @@ docker.prototype.testerOutput = function (textarea, btns) {
 };
 
 docker.prototype.addButtons = function (btns) {
-    var getYamlbtn = this.createButton("Download YAML config", this.getYaml);
-    btns.insertBefore(getYamlbtn, btns.firstChild);
+    if (use_urge) {
+        var getConfigButton = this.createButton("Download OF config rules", this.getOFRules);
+    } else {
+        var getConfigButton = this.createButton("Download YAML config", this.getYaml);
+    }
+    btns.insertBefore(getConfigButton, btns.firstChild);
     var getTopologyConfig = this.createButton("Download Topology json", this.getTopologyConfig);
     btns.insertBefore(getTopologyConfig, btns.firstChild);
     var getLogbtn = this.createButton("Download logs", this.getLogs);
@@ -81,6 +85,24 @@ docker.prototype.getYaml = function () {
             });
             a.href = URL.createObjectURL(file);
             a.download = "faucet.yaml";
+            a.click();
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+};
+
+docker.prototype.getOFRules = function () {
+    let url = window.location.origin + "/sdnixp/getOF";
+
+    $.ajax(url)
+        .done(function (data) {
+            var a = document.createElement("a");
+            var file = new Blob([data], {
+                type: "application/zip"
+            });
+            a.href = URL.createObjectURL(file);
+            a.download = "rules.zip";
             a.click();
         })
         .fail(function () {

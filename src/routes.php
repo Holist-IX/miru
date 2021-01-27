@@ -21,5 +21,6 @@ Route::group( [ 'prefix' => 'sdnixp' ], function() {
     Route::get(     'testConfigWithOutput', 'SDNIXPController@testConfigWithOutput' )->name( 'sdnixp@testConfigWithOutput');
     Route::get(     'Miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
     Route::get(     'miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
+    Route::get(     'getOF',                'SDNIXPController@getOF'                )->name( 'sdnixp@getOF' );
 });
 
