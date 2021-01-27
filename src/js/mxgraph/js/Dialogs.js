@@ -2031,7 +2031,7 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 	inner.style.paddingBottom = '16px';
 	inner.style.fontSize = '16px';
 
-	mxUtils.write(inner, 'Miru output');
+	mxUtils.write(inner, 'Athos output');
 
 	var output = document.createElement('div');
 
@@ -2039,7 +2039,8 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 
 	textarea.style.height = '415px';
 	textarea.style.width = '755px';
-	textarea.style.border = "1px solid black"
+	textarea.style.border = "1px solid black";
+	textarea.id = "testOutput";
 	textarea.readOnly = true;
 
 	output.appendChild(textarea);

@@ -44,13 +44,19 @@ class SDNIXPController extends Controller
     public function Miru(): View
     {
         $URGE = false;
+        $deploy = false;
         $urge_dir = config("custom.urge.dir");
+        $deploy_script = config("custom.deploy.script");
         if ($urge_dir != NULL or $urge_dir != ""){
             $URGE = true;
         }
+        if ($deploy_script != NULL or $deploy_script != ""){
+            $deploy = true;
+        }
 
         return view('sdnixp::miru')->with([
-            'urge' => $URGE
+            'urge' => $URGE,
+            'd_en' => $deploy
         ]);
     }
 
@@ -98,6 +104,31 @@ class SDNIXPController extends Controller
         pclose($proc);
     }
 
+    public function deploy()
+    {
+        header('X-Accel-Buffering: no');
+        $deploy_script = config("custom.deploy.script");
+        if ($deploy_script != NULL or $deploy_script != "")
+        {
+            $proc = popen("bash $deploy_script", 'r');
+            $live_output = "";
+            $complete_output = "";
+            
+            while (!feof($proc))
+            {
+                $live_output = fread($proc, 1024);
+                $complete_output = $complete_output . $live_output;
+                echo $live_output;
+                @ flush();
+            }
+            pclose($proc);
+        }
+        else
+        {
+            echo "No deploy script is set up";
+        }
+    }
+
     public function getFaucetYaml()
     {
         $dir = config("custom.athos.dir", "/athos");
@@ -111,11 +142,18 @@ class SDNIXPController extends Controller
     public function getOF()
     {
         $dir = config("custom.urge.dir");
-        $fpath = "$dir/rules.zip";
-        $file = fopen($fpath, "r");
-        $out = fread($file, filesize($fpath));
-        fclose($file);
-        return $out;
+        if ($deploy_script != NULL or $deploy_script != "")
+        {
+            $fpath = "$dir/rules.zip";
+            $file = fopen($fpath, "r");
+            $out = fread($file, filesize($fpath));
+            fclose($file);
+            return $out;
+        }
+        else
+        {
+            return false;
+        }
     }
  
     public function getTopologyJson()

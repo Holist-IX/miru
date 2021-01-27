@@ -60,6 +60,33 @@ docker.prototype.testerOutput = function (textarea, btns) {
     };
     xhr.send();
 };
+docker.prototype.deploy = function () {
+
+    textarea = document.getElementById("testOutput");
+    textarea.innerHTML = "";
+    xhr = new XMLHttpRequest();
+    let url = window.location.origin + "/sdnixp/deploy";
+    var oldVal = "Starting deploy process.\nPlease wait...\n";
+    var newVal = "";
+    var t = document.createTextNode(oldVal);
+    textarea.append(t);
+    xhr.open("GET", url, true);
+    xhr.onprogress = function (e) {
+        var resp = e.currentTarget.responseText;
+        newVal = resp.replace(oldVal, "");
+        var text = document.createTextNode(newVal);
+        oldVal = resp;
+        textarea.append(text);
+        textarea.scrollTop = textarea.scrollHeight;
+
+    };
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            console.log("Result = " + xhr.responseText);
+        }
+    };
+    xhr.send();
+};
 
 docker.prototype.addButtons = function (btns) {
     if (use_urge) {
@@ -72,6 +99,10 @@ docker.prototype.addButtons = function (btns) {
     btns.insertBefore(getTopologyConfig, btns.firstChild);
     var getLogbtn = this.createButton("Download logs", this.getLogs);
     btns.insertBefore(getLogbtn, btns.firstChild);
+    if (d_en) {
+        var deployButton = this.createButton("Deploy config", this.deploy);
+        btns.insertBefore(deployButton, btns.firstChild);
+    }
 };
 
 docker.prototype.getYaml = function () {

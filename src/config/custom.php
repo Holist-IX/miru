@@ -43,5 +43,8 @@ return [
     ],
     'urge' => [
         'dir'=> '/urge',
+    ],
+    'deploy' => [
+        'script' => '/urge/script.sh'
     ]
 ];
