@@ -6,13 +6,17 @@ use Illuminate\Http\Request;
 
 use Illuminate\Http\RedirectResponse;
 
+use D2EM;
+
 use IXP\Http\Controllers\{
     App,
     Auth,
-    Controller,
-    D2EM
+    Controller
 };
 
+use Entities\{
+    Switcher    as SwitcherEntity
+};
 use Illuminate\View\View;
 use IXP\Utils\View\Alert\Alert;
 use IXP\Utils\View\Alert\Container as AlertContainer;
@@ -43,20 +47,22 @@ class SDNIXPController extends Controller
 
     public function Miru(): View
     {
-        $URGE = false;
-        $deploy = false;
-        $urge_dir = config("custom.urge.dir");
-        $deploy_script = config("custom.deploy.script");
-        if ($urge_dir != NULL or $urge_dir != ""){
+        $sw_array = array();
+        foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
+            $sw_array[ $sw->getName() ] = $sw->getId();
+        }
+        $switches = json_encode($sw_array);
+        if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
             $URGE = true;
         }
-        if ($deploy_script != NULL or $deploy_script != ""){
+        if (config("custom.deploy.script") != NULL or config("custom.deploy.script") != ""){
             $deploy = true;
         }
 
         return view('sdnixp::miru')->with([
             'urge' => $URGE,
-            'd_en' => $deploy
+            'd_en' => $deploy,
+            'switches' => $switches
         ]);
     }
 

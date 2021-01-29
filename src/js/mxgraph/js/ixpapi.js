@@ -17,8 +17,8 @@ ixpapi.prototype.apiCalls = async function () {
     this.details.switches = {};
     var me = this;
     async function loop(me) {
-        for (var i = 1; i < 40; i++) {
-            id = await me.getSwitchDetails(i).then(
+        for (var sw_id of Object.values(switches)) {
+            id = await me.getSwitchDetails(sw_id).then(
                 swid => {
                     if(!swid){
                         return null;
