@@ -47,6 +47,8 @@ class SDNIXPController extends Controller
 
     public function Miru(): View
     {
+        $URGE = false;
+        $deploy = false;
         $sw_array = array();
         foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
             $sw_array[ $sw->getName() ] = $sw->getId();
