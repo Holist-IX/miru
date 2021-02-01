@@ -5,7 +5,6 @@
 function ixpapi(ui) {
     this.editorUi = ui;
     this.api_url = window.location.origin + "/api/v4/";
-    this.key = "Z0dUeJCUIHXXEhfBpfawY0SYgmTvrcOe23nbBiS6oMBq34E4"; //API key used for testing. To be replaced with var
     this.details = {};
     this.id_to_name = new Object();
     this.splitChar = ".";
@@ -29,7 +28,8 @@ ixpapi.prototype.apiCalls = async function () {
             );
 
             if(id){
-                await Promise.all([me.getVlans(id), me.getPorts(id, swname), me.getLayer2Interfaces(id, swname)])
+                await Promise.all([me.getVlans(id), me.getPorts(id, swname),
+                                   me.getLayer2Interfaces(id, swname)])
             }
         }
     }
@@ -43,9 +43,7 @@ ixpapi.prototype.getSwitchDetails = function (id) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
         request.open('GET',
-            this.api_url + "provisioner/switch/switch-id/" + id + ".json?apikey=" +
-            this.key, true);
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+            `${this.api_url}provisioner/switch/switch-id/${id}.json`, true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send();
         request.onload = () => {
@@ -90,9 +88,7 @@ ixpapi.prototype.getVlans = function (id) {
 
     return new Promise((resolve, reject) => {
         request.open('GET',
-            this.api_url + "provisioner/vlans/switch-id/" + id + ".json?apikey=" +
-            this.key, true);
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+            `${this.api_url}provisioner/vlans/switch-id/${id}.json`, true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send();
         request.onload = () => {
@@ -100,7 +96,6 @@ ixpapi.prototype.getVlans = function (id) {
                 reject("No switch found with id:" + id);
             }
             resolve(this.processVlans(request.response));
-
         }
         request.onerror = () => {
             console.log("There was an error")
@@ -128,8 +123,7 @@ ixpapi.prototype.getPorts = function (id, swname) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
         request.open('GET',
-            this.api_url + "switch/" + id + "/ports?apikey=" + this.key, true);
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+            `${this.api_url}switch/${id}/ports`, true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send();
         request.onload = () => {
@@ -137,7 +131,6 @@ ixpapi.prototype.getPorts = function (id, swname) {
                 reject("No switch found with name:" + id);
             }
             resolve(this.processPorts(request.response, swname));
-
         }
         request.onerror = () => {
             console.log("There was an error")
@@ -176,9 +169,8 @@ ixpapi.prototype.getLayer2Interfaces = async function (id, swname) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
         request.open('GET',
-            this.api_url + "provisioner/layer2interfaces/switch/" + id +
-            ".json?apikey=" + this.key, true);
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+            `${this.api_url}provisioner/layer2interfaces/switch/${id}.json`, 
+            true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send();
         request.onload = () => {
@@ -214,7 +206,6 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 mac = vlan.macaddresses;
                 ipv4 = vlan.ipaddresses.ipv4
                 ipv6 = vlan.ipaddresses.ipv6
-
 
                 port.name = iface["description"];
                 port.vlans[vlan.number] = {
@@ -324,7 +315,6 @@ ixpapi.prototype.getXML = function(editor){
     let phpurl = window.location.origin + "/sdnixp/getXML"
     var request = new XMLHttpRequest();
     request.open('GET', phpurl, true);
-    request.setRequestHeader('Access-Control-Allow-Origin', '*');
     request.setRequestHeader('Content-Type', 'application/json');
     request.send();
     request.onload = () => {
