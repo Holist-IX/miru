@@ -1,7 +1,11 @@
 /**
  * Starts the API calls for connecting to the IXP-Manager
  */
-
+/**
+ * IXP Manager API to retrieve switch details
+ * @constructor
+ * @param {EditorUi} ui - mxgraph EditorUI
+ */
 function ixpapi(ui) {
     this.editorUi = ui;
     this.api_url = window.location.origin + "/api/v4/";
@@ -12,13 +16,18 @@ function ixpapi(ui) {
 
 };
 
+/**
+ * Makes the necessary API calls to get all the needed switch information
+ */
 ixpapi.prototype.apiCalls = async function () {
     this.details.switches = {};
-    var me = this;
+    var me = this;    
+    // Loops through switches in async to prevent race conditions
     async function loop(me) {
         for (var sw_id of Object.values(switches)) {
             id = await me.getSwitchDetails(sw_id).then(
                 swid => {
+                    // Stops if there is no switch found
                     if(!swid){
                         return null;
                     }
@@ -26,7 +35,6 @@ ixpapi.prototype.apiCalls = async function () {
                     return swid;
                 }
             );
-
             if(id){
                 await Promise.all([me.getVlans(id), me.getPorts(id, swname),
                                    me.getLayer2Interfaces(id, swname)])
@@ -34,11 +42,14 @@ ixpapi.prototype.apiCalls = async function () {
         }
     }
     await loop(me);
+    // Add switch object to the sidebar
     this.addToSidebar();
 };
 
-
-
+/**
+ * Retrieves a switch's name, hostname, ipv4/6 address and whether it is active
+ * @param {number} id 
+ */
 ixpapi.prototype.getSwitchDetails = function (id) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
@@ -65,7 +76,10 @@ ixpapi.prototype.getSwitchDetails = function (id) {
     })
 };
 
-
+/**
+ * Processes switch details and start building switch objects
+ * @param {string} data - Response data in JSON
+ */
 ixpapi.prototype.processSwitch = function (data) {
     if (data) {
         parsed = JSON.parse(data);
@@ -83,6 +97,10 @@ ixpapi.prototype.processSwitch = function (data) {
     }
 };
 
+/**
+ * Retrieves all the vlans found on a switch
+ * @param {number} id - ID of the switch in IXP Manager
+ */
 ixpapi.prototype.getVlans = function (id) {
     var request = new XMLHttpRequest();
 
@@ -105,6 +123,10 @@ ixpapi.prototype.getVlans = function (id) {
     });
 };
 
+/**
+ * Process the vlan information retrieved in the API response
+ * @param {string} data - Request response with JSON containing VLAN info
+ */
 ixpapi.prototype.processVlans = function (data) {
     parsed = JSON.parse(data);
     this.details.vlans = this.details.vlans || {};
@@ -118,6 +140,11 @@ ixpapi.prototype.processVlans = function (data) {
     }
 };
 
+/**
+ * Retrieves all the ports information, including core and inactive ports
+ * @param {number} id       - ID of the switch for the API call
+ * @param {string} swname   - Name of the switch for API call
+ */
 ixpapi.prototype.getPorts = function (id, swname) {
 
     return new Promise((resolve, reject) => {
@@ -128,7 +155,7 @@ ixpapi.prototype.getPorts = function (id, swname) {
         request.send();
         request.onload = () => {
             if (request.status == 404) {
-                reject("No switch found with name:" + id);
+                reject("No switch found with id:" + id);
             }
             resolve(this.processPorts(request.response, swname));
         }
@@ -140,6 +167,11 @@ ixpapi.prototype.getPorts = function (id, swname) {
     });
 };
 
+/**
+ * Processes the retrieved ports of a switch and designate internal ports
+ * @param {string} data     - Request response with JSON containing port infp
+ * @param {string} swname   - Name of the switch that the ports belong to
+ */
 ixpapi.prototype.processPorts = function (data, swname) {
     parsed = JSON.parse(data);
 
@@ -165,6 +197,11 @@ ixpapi.prototype.processPorts = function (data, swname) {
     return;
 };
 
+/**
+ * Retrieves all the layer2 and member/customer info for a switch
+ * @param {number} id       - ID of the switch in IXP Manager
+ * @param {string} swname   - Name of the switch in IXP Manager
+ */
 ixpapi.prototype.getLayer2Interfaces = async function (id, swname) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
@@ -175,7 +212,7 @@ ixpapi.prototype.getLayer2Interfaces = async function (id, swname) {
         request.send();
         request.onload = () => {
             if (request.status == 404) {
-                reject("No switch found with name:" + id);
+                reject("No switch found with id:" + id);
             }
             resolve(this.processLayer2Interfaces(request.response, swname));
         }
@@ -187,6 +224,11 @@ ixpapi.prototype.getLayer2Interfaces = async function (id, swname) {
     });
 };
 
+/**
+ * Processes all the member details connected to a switch
+ * @param {string} data     - Request response with JSON containing members info
+ * @param {string} swname   - Name of the switch that the members are connected to
+ */
 ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
     parsed = JSON.parse(data);
     if (parsed.layer2interfaces.length == 0){
@@ -220,6 +262,9 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
     return
 };
 
+/**
+ * Adds the switch objects to the sidebar
+ */
 ixpapi.prototype.addToSidebar = async function () {
     var doc = mxUtils.createXmlDocument();
     var container = document.getElementsByClassName("geSidebarContainer")[0];
@@ -311,6 +356,10 @@ ixpapi.prototype.addToSidebar = async function () {
     SB.addPaletteFunctions('Switches', 'Switches', (expand != null) ? expand : true, this.xmlSwitches);
 };
 
+/**
+ * Gets the XML details for the graph to be used and restored later
+ * @param {Editor} editor - mxgraph editor
+ */
 ixpapi.prototype.getXML = function(editor){
     let phpurl = window.location.origin + "/sdnixp/getXML"
     var request = new XMLHttpRequest();
