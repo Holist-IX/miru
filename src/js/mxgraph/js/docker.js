@@ -1,10 +1,18 @@
 /**
- * Starts the API calls for connecting to the IXP-Manager
+ * Starts the API calls for connecting to the IXP Manager
+ */
+/**
+ * API calls to Miru as intermediate to use Athos
+ * @constructor
+ * @param {EditorUi} ui - mxgraph EditorUi
  */
 function docker(ui) {
     this.ui = ui;
 };
 
+/**
+ * Retrieves the latest logs from Athos
+ */
 docker.prototype.getLogs = function () {
     let url = window.location.origin + "/sdnixp/getLatestLogs";
 
@@ -23,6 +31,10 @@ docker.prototype.getLogs = function () {
         });
 }
 
+/**
+ * Runs an Athos instance with no output
+ * @param {*} d 
+ */
 docker.prototype.tester = function (d) {
     let phpurl = window.location.origin + "/sdnixp/generateConfig";
     $.ajax(phpurl).done(function (msg) {
@@ -33,6 +45,11 @@ docker.prototype.tester = function (d) {
         })
 };
 
+/**
+ * Runs Athos and stores the output in the textarea
+ * @param {object} textarea - Textarea to add result messages back
+ * @param {Array} btns      - Buttons array to add done buttons to
+ */
 docker.prototype.testerOutput = function (textarea, btns) {
 
     xhr = new XMLHttpRequest();
@@ -50,7 +67,6 @@ docker.prototype.testerOutput = function (textarea, btns) {
         oldVal = resp;
         textarea.append(text);
         textarea.scrollTop = textarea.scrollHeight;
-
     };
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -60,8 +76,12 @@ docker.prototype.testerOutput = function (textarea, btns) {
     };
     xhr.send();
 };
-docker.prototype.deploy = function () {
 
+/**
+ * Runs deployment function within Miru
+ */
+docker.prototype.deploy = function () {
+    // Reuses the textbox used when testing with output
     textarea = document.getElementById("testOutput");
     textarea.innerHTML = "";
     xhr = new XMLHttpRequest();
@@ -88,7 +108,12 @@ docker.prototype.deploy = function () {
     xhr.send();
 };
 
+/**
+ * Adds download buttons to array of existing buttons
+ * @param {Array} btns  - Array of btns to which the new buttons are to be added to
+ */
 docker.prototype.addButtons = function (btns) {
+    // Change button depending if Urge or faucet config is being used
     if (use_urge) {
         var getConfigButton = this.createButton("Download OF config rules", this.getOFRules);
     } else {
@@ -99,12 +124,16 @@ docker.prototype.addButtons = function (btns) {
     btns.insertBefore(getTopologyConfig, btns.firstChild);
     var getLogbtn = this.createButton("Download logs", this.getLogs);
     btns.insertBefore(getLogbtn, btns.firstChild);
+    // Checks if deploy function is set up in Miru
     if (d_en) {
         var deployButton = this.createButton("Deploy config", this.deploy);
         btns.insertBefore(deployButton, btns.firstChild);
     }
 };
 
+/**
+ * Retrieves the latest faucet Config that was generated
+ */
 docker.prototype.getYaml = function () {
     let url = window.location.origin + "/sdnixp/getFaucetYaml";
 
@@ -123,6 +152,9 @@ docker.prototype.getYaml = function () {
         });
 };
 
+/**
+ * Retrieves the latest set of OpenFlow rules that Urge generated
+ */
 docker.prototype.getOFRules = function () {
     let url = window.location.origin + "/sdnixp/getOF";
 
@@ -141,6 +173,9 @@ docker.prototype.getOFRules = function () {
         });
 };
 
+/**
+ * Retrieves the latest topology config that was generated
+ */
 docker.prototype.getTopologyConfig = function () {
     let url = window.location.origin + "/sdnixp/getTopologyJson";
 
@@ -159,6 +194,11 @@ docker.prototype.getTopologyConfig = function () {
         });
 };
 
+/**
+ * Wrapper to create a button with a label and function
+ * @param {string} label    - Label to add to the button
+ * @param {object} func     - Function to call when button is clicked
+ */
 docker.prototype.createButton = function (label, func) {
     var button = document.createElement('button');
     mxUtils.write(button, label);
