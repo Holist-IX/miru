@@ -1,6 +1,11 @@
 /** 
  * Constructs the Umbrella object for the given ui
  */
+/**
+ * Umbrella faucet and topology generator
+ * @constructor
+ * @param {EditorUI} editorUi - mxgraph EditorUI
+ */
 function Umbrella(editorUi) {
     this.editorUi = editorUi;
     this.umbrella = new Object();
@@ -22,6 +27,9 @@ function Umbrella(editorUi) {
     // this.init();
 }
 
+/**
+ * Initialise the config generator and runs generates all the configs
+ */
 Umbrella.prototype.init = function () {
     var ui = this.editorUi;
     var editor = ui.editor;
@@ -32,10 +40,10 @@ Umbrella.prototype.init = function () {
 
     for (var node of graphXML.childNodes[0].childNodes) {
         var id = node.id;
-
+        // Organises the all of the links between switches
         if (node.hasAttribute('link')) {
-            // console.log(id + " is a link node");
             
+            // If no link speed is detected we assume it is 1GB speeds
             var linkSpeed = node.hasAttribute('speed') ? node.getAttribute('speed') : 10000;
             var link = {
                 'link': node.getAttribute('link'),
@@ -43,34 +51,32 @@ Umbrella.prototype.init = function () {
             };
             this.links.push(link);
         } else if (node.hasAttribute('switch')) {
-            // console.log(id + " is a switch node");
+
             this.processSwitch(node);
         } else {
             console.log(id + " is a rubbish");
         }
     }
+    // Organises using Shortest Path first
     this.SPFOrganise();
-
     for (var edge of this.link_nodes) {
         this.spfGraphing.addEdge(edge[0], edge[1], edge[2]);
     }
+
     this.tidyCoreLinks();
     this.generateACLS();
-    // console.log(this.faucetObject);
     var yamlObj = jsyaml.dump(this.faucetObject);
     this.cleanYaml(yamlObj);
     this.topogenerator();
 };
 
+/**
+ * Process the XML node into a faucet config node
+ * @param {Object} switchNode - XML Switch node
+ */
 Umbrella.prototype.processSwitch = function (switchNode) {
     var swname = switchNode.getAttribute('switch');
     this.switches.push(swname);
-    // if (!switchNode.hasAttribute('dpid')) {
-    //     console.log("WARN: Switch " + switchNode.getAttribute('name') +
-    //         " is not a OF switch.\n" +
-    //         "No faucet config will be generated for this switch");
-    //     return
-    // }
     if (switchNode.hasAttribute('core')){
         var isCore = switchNode.getAttribute('core');
         if (isCore){
@@ -78,6 +84,8 @@ Umbrella.prototype.processSwitch = function (switchNode) {
             return;
         }
     }
+    // We make the assumption that dpid's are the same as switch ids for testing
+    // dpids NEED to be specified in graph for production
     if (!switchNode.hasAttribute('dpid')) {
         // console.log("WARN: Switch " + switchNode.getAttribute('name') +
         //     " is not a OF switch.\n" +
@@ -94,6 +102,7 @@ Umbrella.prototype.processSwitch = function (switchNode) {
     this.faucetObject.dps[swname]['interfaces'] = {};
     this.addressToPort[swname] = {};
 
+    // Organises the members connected to a switch
     for (var child of switchNode.children) {
         if (child.localName == "interfaces") {
             for (var iface of child.childNodes) {
@@ -174,7 +183,9 @@ Umbrella.prototype.processSwitch = function (switchNode) {
     }
 };
 
-
+/**
+ * Parses and organises host/switch nodes and gives a cost based on link speed
+ */
 Umbrella.prototype.SPFOrganise = function () {
     for (var link of this.links) {
         var cost = 100000 / (parseInt(link['speed']));
@@ -183,6 +194,9 @@ Umbrella.prototype.SPFOrganise = function () {
     }
 };
 
+/**
+ * Generate all the ACLS for the faucet config
+ */
 Umbrella.prototype.generateACLS = function () {
     for (var sw of Object.entries(this.addressToPort)) {
         var swName = sw[0];
@@ -191,6 +205,7 @@ Umbrella.prototype.generateACLS = function () {
         portToAddresses = {};
         for ([addr, details] of Object.entries(sw[1])) {
             portToAddresses[details.port] = portToAddresses[details.port] || {}
+            // Allows ipv4 and ipv6 addresses to be optional
             switch (details.addr_type) {
                 case "ipv4":
                     portToAddresses[details.port].ipv4 = addr
@@ -220,6 +235,7 @@ Umbrella.prototype.generateACLS = function () {
             }
             for ([addr, details] of Object.entries(otherSW[1])) {
                 var route = this.djikistra(this.spfGraphing, swName, details.name);
+                // No MAC rewrite needed for short paths
                 if (route.length < 4) {
                     var ports = [];
                     var otherPorts = [];
@@ -253,23 +269,31 @@ Umbrella.prototype.generateACLS = function () {
     }
 };
 
-
+/**
+ * Generates an ACL based on Umbrella mac path encoding
+ * @param {string} addr         - The address to process
+ * @param {string} addr_type    - The address type (ipv4,ipv6 or mac)
+ * @param {number} aclNum       - The ACL number to use
+ * @param {Array} route         - Route from destination node to source node
+ * @param {Object} sw           - Switch the ACL is being generated
+ */
 Umbrella.prototype.umbrellaACL = function (addr, addr_type, aclNum, route, sw) {
 
     var outPort = 0;
     var ports = [];
     var prevHop = "";
     for (var hop of route) {
+        // Ensure we're not sending the packet to itself
         if (hop == sw) {
             prevHop = hop;
             continue;
         }
+        // Encodes the last port that will be used
         if (hop == route[route.length -1]) {
             var lastPort = this.addressToPort[prevHop][addr].port;
             ports.push(lastPort);
             continue;
         }
-        // console.log(this.coreLinks)
         if (prevHop) {
             for ([port, details] of Object.entries(this.coreLinks[prevHop])) {
                 if (details.hasOwnProperty(hop)) {
@@ -336,9 +360,10 @@ Umbrella.prototype.umbrellaACL = function (addr, addr_type, aclNum, route, sw) {
     }
 }
 
-
+/**
+ * Finds core links and add redundancy rules to them
+ */
 Umbrella.prototype.tidyCoreLinks = function () {
-    // TODO: Organise core links
     for (var sw of this.switches) {
         this.coreLinks[sw] = {};
     }
@@ -383,7 +408,12 @@ Umbrella.prototype.tidyCoreLinks = function () {
     }
 };
 
-
+/**
+ * Find route between initial and end node using Djikstra's shortest path first
+ * @param {*} graph 
+ * @param {*} initial 
+ * @param {*} end 
+ */
 Umbrella.prototype.djikistra = function (graph, initial, end) {
 
     var shortestPaths = {};
@@ -435,9 +465,15 @@ Umbrella.prototype.djikistra = function (graph, initial, end) {
     return (path);
 };
 
-
+/**
+ * Writes the IPv4 rule for the node that is directly connected to the switch
+ * @param {string} addr     - IPv4 address of the connected node
+ * @param {number} port     - Port the member is connected to
+ * @param {number} acl_num  - Acl number associated for the rule
+ * @param {string} mac      - MAC address of the connected node
+ */
 Umbrella.prototype.ownIPv4ACL = function (addr, port, acl_num, mac) {
-
+    // Rewrites the mac address from broadcast to the address of the node
     this.faucetObject.acls[acl_num].push({
         "rule": {
             "dl_type": "0x806",
@@ -455,6 +491,13 @@ Umbrella.prototype.ownIPv4ACL = function (addr, port, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the IPv6 rule for the node that is directly connected to the switch
+ * @param {string} addr     - IPv6 address of the connected node
+ * @param {number} port     - Port the member is connected to
+ * @param {number} acl_num  - Acl number associated for the rule
+ * @param {string} mac      - MAC address of the connected node
+ */
 Umbrella.prototype.ownIPv6ACL = function (addr, port, acl_num, mac) {
 
     this.faucetObject.acls[acl_num].push({
@@ -475,6 +518,13 @@ Umbrella.prototype.ownIPv6ACL = function (addr, port, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the mac rule for the node that is directly connected to the switch
+ * @param {string} addr     - IPv6 address of the connected node
+ * @param {number} port     - Port the member is connected to
+ * @param {number} acl_num  - Acl number associated for the rule
+ * @param {string} mac      - MAC address of the connected node
+ */
 Umbrella.prototype.ownMacACL = function (addr, port, acl_num, mac) {
 
     this.faucetObject.acls[acl_num].push({
@@ -489,6 +539,12 @@ Umbrella.prototype.ownMacACL = function (addr, port, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the IPv4 rule for a node not directly connected to the switch
+ * @param {string} addr     - IPv4 address of the node
+ * @param {number} ports    - Ports connected to other switches [main,backup]
+ * @param {number} acl_num  - Acl number associated with the rule
+ */
 Umbrella.prototype.otherIPv4ACL = function (addr, ports, acl_num) {
 
     this.groupID += 1;
@@ -509,6 +565,12 @@ Umbrella.prototype.otherIPv4ACL = function (addr, ports, acl_num) {
     });
 };
 
+/**
+ * Writes the IPv6 rule for a node not directly connected to the switch
+ * @param {string} addr     - mac address of the node
+ * @param {number} ports    - Ports connected to other switches [main,backup]
+ * @param {number} acl_num  - Acl number associated with the rule
+ */
 Umbrella.prototype.otherIPv6ACL = function (addr, ports, acl_num) {
 
     this.groupID += 1;
@@ -530,7 +592,12 @@ Umbrella.prototype.otherIPv6ACL = function (addr, ports, acl_num) {
     });
 };
 
-
+/**
+ * Writes the mac rule for a node not directly connected to the switch
+ * @param {string} addr     - IPv4 address of the node
+ * @param {number} ports    - Ports connected to other switches [main,backup]
+ * @param {number} acl_num  - Acl number associated with the rule
+ */
 Umbrella.prototype.otherMacACL = function (addr, ports, acl_num) {
 
     this.groupID += 1;
@@ -549,6 +616,13 @@ Umbrella.prototype.otherMacACL = function (addr, ports, acl_num) {
     });
 };
 
+/**
+ * Writes the IPv4 path encoding rule based on umbrella
+ * @param {string} addr     - IPv4 address of the node 
+ * @param {number} outPort  - Port to send the packet out
+ * @param {number} acl_num  - Acl number associated with the rule
+ * @param {string} mac      - Encoded mac path
+ */
 Umbrella.prototype.umbrellaIPv4ACL = function (addr, outPort, acl_num, mac) {
 
     this.faucetObject.acls[acl_num].push({
@@ -568,6 +642,13 @@ Umbrella.prototype.umbrellaIPv4ACL = function (addr, outPort, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the IPv6 path encoding rule based on umbrella
+ * @param {string} addr     - IPv6 address of the node 
+ * @param {number} outPort  - Port to send the packet out
+ * @param {number} acl_num  - Acl number associated with the rule
+ * @param {string} mac      - Encoded mac path
+ */
 Umbrella.prototype.umbrellaIPv6ACL = function (addr, outPort, acl_num, mac) {
 
     this.faucetObject.acls[acl_num].push({
@@ -588,6 +669,13 @@ Umbrella.prototype.umbrellaIPv6ACL = function (addr, outPort, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the mac path encoding rule based on umbrella
+ * @param {string} addr     - mac address of the node 
+ * @param {number} outPort  - Port to send the packet out
+ * @param {number} acl_num  - Acl number associated with the rule
+ * @param {string} mac      - Encoded mac path
+ */
 Umbrella.prototype.umbrellaMacACL = function (addr, outPort, acl_num, mac) {
 
     this.faucetObject.acls[acl_num].push({
@@ -605,6 +693,12 @@ Umbrella.prototype.umbrellaMacACL = function (addr, outPort, acl_num, mac) {
     });
 };
 
+/**
+ * Writes the rule to change from path encoding to real mac address
+ * @param {string} addr     - Mac address of the destination node
+ * @param {number} port     - Port that the node is connected to
+ * @param {number} acl_num  - Acl number the rule is associated with
+ */
 Umbrella.prototype.portToMacACL = function (addr, port, acl_num) {
 
     portStr = port.toString(16);
@@ -627,8 +721,10 @@ Umbrella.prototype.portToMacACL = function (addr, port, acl_num) {
     });
 };
 
-
-
+/**
+ * Resolves issues with JS yaml not being fully YAML compliant
+ * @param {string} yamlObj  - YAML string with our faucet config
+ */
 Umbrella.prototype.cleanYaml = async function(yamlObj){
     var ports = new Set();
     for(var[swname, sw] of Object.entries(this.faucetObject.dps)){;
@@ -639,16 +735,21 @@ Umbrella.prototype.cleanYaml = async function(yamlObj){
     for(var acl of Object.keys(this.faucetObject.acls)){
         ports.add(parseInt(acl), 10);
     }
-    
+    // Need to remove quotes from keys as this breaks YAML with numbers
     var cleanYaml = await this.removeQuotesFromKeys(ports, yamlObj).then(
         result => {
             return result;
         }
     )
-    // console.log(cleanYaml);
     this.saveYaml(cleanYaml);
 }
 
+/**
+ * Removes the quotes surrounded keys that are numbers
+ * @param {Array} ports         - Set of ports associated with the switch
+ * @param {string} yamlDirty    - Old YAML string
+ * @returns {string }           - Cleaned YAML string that is now compliant
+ */
 Umbrella.prototype.removeQuotesFromKeys = function(ports, yamlDirty){
     return new Promise((resolve, reject) => {
         var result = yamlDirty;
@@ -660,6 +761,9 @@ Umbrella.prototype.removeQuotesFromKeys = function(ports, yamlDirty){
     });
 }
 
+/**
+ * Generates a topology file used within Athos
+ */
 Umbrella.prototype.topogenerator = function(){
     var host_matrix = new Object();
     this.topology.hosts_matrix = [];
@@ -751,6 +855,10 @@ Umbrella.prototype.topogenerator = function(){
     this.saveXml();
 }
 
+/**
+ * Sends the Faucet config to Miru to save
+ * @param {string} yamlObj  - Faucet config to save
+ */
 Umbrella.prototype.saveYaml = function(yamlObj){
     let phpurl = window.location.origin + "/sdnixp/saveFaucet";
     var d = String(yamlObj)
@@ -760,6 +868,7 @@ Umbrella.prototype.saveYaml = function(yamlObj){
         type: "POST",
         data: {"msg": d},
     }).done(function(msg){
+        // Checks whether it is generating configs and running Athos together
         var textArea = document.getElementById(`testOutput`);
         if (textArea){
             var textNode = document.createTextNode('faucet config successfully generated and saved to Athos\n');
@@ -783,6 +892,10 @@ Umbrella.prototype.saveYaml = function(yamlObj){
     })
 };
 
+/**
+ * Sends the topology file to Miru to save
+ * @param {Object} topo - Topology file to save
+ */
 Umbrella.prototype.saveTopo = function(topo){
     let phpurl = window.location.origin + "/sdnixp/saveTopo";
     d = JSON.stringify(topo);
@@ -794,6 +907,7 @@ Umbrella.prototype.saveTopo = function(topo){
         data: {"msg": dstring}
     }).done(function(msg){
         var textArea = document.getElementById(`testOutput`);
+        // Checks whether it is generating configs and running Athos together
         if (textArea) {
             var textNode = document.createTextNode('Topology config successfully generated and saved to Athos\n')
             textArea.append(textNode);
@@ -814,6 +928,9 @@ Umbrella.prototype.saveTopo = function(topo){
     })
 };
 
+/**
+ * Sends the XML file of the graph object to Miru to save
+ */
 Umbrella.prototype.saveXml = function(){
     xmlfile = mxUtils.getXml(this.editorUi.editor.getGraphXml());
     let phpurl = window.location.origin + "/sdnixp/saveXML";
@@ -835,7 +952,9 @@ Umbrella.prototype.saveXml = function(){
     })
 }
 
-
+/**
+ * Class for the shortest path first 
+ */
 class spfGraph {
     constructor() {
         this.edges = {};
