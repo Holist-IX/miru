@@ -2015,11 +2015,12 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
  * SDNIXP
  */
 
-var ShowOutputDialog = function(editorUi, btnLabel)
+var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 {
 
 	var div = document.createElement('div');
 	var dockerAPI = new docker(editorUi);
+	var umb = null;
 	
 	var inner = document.createElement('div');
 	inner.className = 'geTitle';
@@ -2043,20 +2044,52 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 	textarea.id = "testOutput";
 	textarea.readOnly = true;
 
+	var textNode = document.createTextNode("Generating configurations...\n")
+	textarea.append(textNode)
 	output.appendChild(textarea);
 
 	div.appendChild(inner);
 
 	div.appendChild(output);
 
+	if (generate) {
+		console.log(`Tester output generate : ${generate}`)
+		umb = new Umbrella(editorUi);
+		umb.init();
+	}
+
 	var btns = document.createElement('div');
 	btns.style.marginTop = '18px';
 	btns.style.textAlign = 'right';
 
-	// Empty function to be compatible with the other dialogs
 	this.init = function()
 	{
-		dockerAPI.testerOutput(textarea, btns);
+		n = 1
+		// Checks whether or not the config has finished being generated
+		function checkDone(){
+			if (umb.failed) {
+				console.log(`Config generation failed`);
+				return
+			}
+			if (umb.done) {
+				console.log('Config detected as done')
+				dockerAPI.testerOutput(textarea, btns);
+			} 
+			else if (n < 5000){
+				console.log(`No config detected after ${n}000 milliseconds`)
+				n += 10;
+				to = n * 1000
+				// Checks again after timeout, as larger configs can take longer
+				setTimeout(() => checkDone(), to);
+
+			} else {
+				alert(`No config detected after ${n} seconds`);
+				return
+			}
+
+		}
+		// Allows for smaller topologies to be generated
+		setTimeout(() => checkDone(), 500);	
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -2071,7 +2104,6 @@ var ShowOutputDialog = function(editorUi, btnLabel)
 
 	var mainBtn = mxUtils.button(btnLabel, function()
 	{
-		
 		editorUi.hideDialog.apply(editorUi, arguments);
 	});
 

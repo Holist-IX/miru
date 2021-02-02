@@ -17,7 +17,9 @@ function Umbrella(editorUi) {
     this.groupID = 0;
     this.splitChar = ".";
     this.topology = new Object();
-    this.init()
+    this.done = false;
+    this.failed = false
+    // this.init();
 }
 
 Umbrella.prototype.init = function () {
@@ -56,9 +58,8 @@ Umbrella.prototype.init = function () {
     this.generateACLS();
     // console.log(this.faucetObject);
     var yamlObj = jsyaml.dump(this.faucetObject);
-
-    this.cleanYaml(yamlObj)
-    this.topogenerator()
+    this.cleanYaml(yamlObj);
+    this.topogenerator();
 };
 
 Umbrella.prototype.processSwitch = function (switchNode) {
@@ -753,18 +754,32 @@ Umbrella.prototype.topogenerator = function(){
 Umbrella.prototype.saveYaml = function(yamlObj){
     let phpurl = window.location.origin + "/sdnixp/saveFaucet";
     var d = String(yamlObj)
+    var me = this;
     $.ajax({
         url: phpurl,
         type: "POST",
         data: {"msg": d},
     }).done(function(msg){
-        // console.log("save faucet success")
-        // console.log(msg)
-        alert("faucet config generated successfully. Saved to the push-on-green module")
+        var textArea = document.getElementById(`testOutput`);
+        if (textArea){
+            var textNode = document.createTextNode('faucet config successfully generated and saved to Athos\n');
+            textArea.append(textNode)
+            me.done = true;
+            me.failed = false;
+        }
+        else {
+            alert("faucet config generated successfully. Saved to the push-on-green module")
+            me.done = true;
+            me.failed = false;
+        }
+        
     })
     .fail(function(msg){
-        console.log("something went wrong in saving faucet")
-        console.log(msg)
+        alert("Something went wrong in saving faucet config.\nCheck user permissions within ATHOS")
+        console.log(msg);
+        me.done = true;
+        me.failed = true;
+        
     })
 };
 
@@ -772,17 +787,30 @@ Umbrella.prototype.saveTopo = function(topo){
     let phpurl = window.location.origin + "/sdnixp/saveTopo";
     d = JSON.stringify(topo);
     dstring = String(d);
+    var me = this;
     $.ajax({
         url: phpurl,
         type: "POST",
         data: {"msg": dstring}
     }).done(function(msg){
-        console.log("save topo success")
-        // console.log(msg)
+        var textArea = document.getElementById(`testOutput`);
+        if (textArea) {
+            var textNode = document.createTextNode('Topology config successfully generated and saved to Athos\n')
+            textArea.append(textNode);
+            me.done = true;
+            me.failed = false;
+        }
+        else {
+            alert("Topology config generated successfully. Saved to the push-on-green module")
+            me.done = true;
+            me.failed =false;
+        }
     })
     .fail(function(msg){
         console.log("something went wrong in saving topo")
         console.log(msg)
+        me.done = false;
+        me.failed = true;
     })
 };
 
@@ -790,17 +818,20 @@ Umbrella.prototype.saveXml = function(){
     xmlfile = mxUtils.getXml(this.editorUi.editor.getGraphXml());
     let phpurl = window.location.origin + "/sdnixp/saveXML";
     dstring = String(xmlfile);
+    var me = this;
     $.ajax({
         url: phpurl,
         type: "POST",
         data: {"msg": dstring}
     }).done(function(msg){
-        console.log("save XML success")
-        // console.log(msg)
+        me.done = true;
+        me.failed = false;
     })
     .fail(function(msg){
-        console.log("something went wrong in saving topo")
+        console.log("something went wrong in saving xml")
         console.log(msg)
+        me.done = true;
+        me.failed = true;
     })
 }
 

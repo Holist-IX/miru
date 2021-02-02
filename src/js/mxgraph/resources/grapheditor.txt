@@ -3,6 +3,7 @@ alreadyConnected=Nodes already connected
 cancel=Cancel
 connectixp=Connect to IXP Manager
 umbrella=Generate Config
+generateRun=Start tests
 testeroutput=Run Athos with output
 tester=Run Athos
 close=Close
