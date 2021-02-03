@@ -8,17 +8,18 @@ function TopologyGenerator(editorUi) {
   this.switches = [];
   this.hosts = [];
   this.vlans = {};
+  this.linkSplitChar = ',';
+  this.portSplitChar = '.';
 }
 
 TopologyGenerator.prototype.init = function () {
-  this.getNodes();
-  console.log(this.coreLinks);
-  console.log(this.switches);
-  console.log(this.hosts);
-  console.log(this.vlans);
+  this.processNodes();
+  console.log(this.switches)
+  console.log(this.vlans)
+  console.log(this.hosts)
 };
 
-TopologyGenerator.prototype.getNodes = function () {
+TopologyGenerator.prototype.processNodes = function () {
   // Retrieves the latest version of the graph
   var editorUi = this.editorUi;
   var editor = editorUi.editor;
@@ -35,10 +36,14 @@ TopologyGenerator.prototype.getNodes = function () {
 TopologyGenerator.prototype.setLink = function (linkNode) {
   // If no link speed is detected we assume it is 10GB speeds
   // Theses are typically core links in testBench setups
-  var linkSpeed = linkNode.hasAttribute("speed") ? node.getAttribute("speed") : 10000;
+  var linkSpeed = linkNode.hasAttribute("speed") ? linkNode.getAttribute("speed") : 10000;
+  var vid = linkNode.hasAttribute("vid") ? linkNode.getAttribute("vid") : null;
+  var tagged = linkNode.hasAttribute("tagged") ? linkNode.getAttribute("tagged") : null;
   var link = {
-    link: linkNode.getAttribute("link"),
-    speed: linkSpeed,
+    'link': linkNode.getAttribute("link"),
+    'speed': linkSpeed,
+    'vid' : vid,
+    'tagged' : tagged
   };
   return link;
 };
@@ -73,11 +78,15 @@ TopologyGenerator.prototype.processSwitchNode = function (switchNode) {
 
 TopologyGenerator.prototype.processInterface = function (interfaceNode, nwSwitch) {
   host = new Host();
-  if (interfaceNode.nodeName != "iface" || interfaceNode.hasAttribute("Core")) {
-    // Ignore core ports here as we use links to specify core ports
+  if (interfaceNode.nodeName != "iface") {
     return null;
   }
   var port = Number(interfaceNode.getAttribute("port"));
+  
+  if (interfaceNode.hasAttribute("Core")) {
+    // We sort out core ports later since not all links are found yet
+    return;
+    }
   var portName = interfaceNode.getAttribute("name");
   host.setName(portName);
 
@@ -104,6 +113,38 @@ TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, por
   }
 
   if (!(vid in this.vlans)) {
-    this.vlans.vid = vlanNode.getAttribute("vlan_description");
+    this.vlans[vid] = {}
+    this.vlans[vid].description = vlanNode.getAttribute("vlan_description");
+    this.vlans[vid].tagged = tagged;
   }
 };
+
+TopologyGenerator.prototype.processCoreLinks = function(){
+  continue;
+  // console.log(this.coreLinks)
+    // for(var linkNode of this.coreLinks ){
+    //   console.log(linkNode)
+    //   link = linkNode['link'].split(this.linkSplitChar)
+    //   sw1 = link[0]
+    //   p1  = link[1].split(this.portSplitChar)[2]
+    //   sw2 = link[2]
+    //   p2  = link[3].split(this.portSplitChar)[2]
+    //   console.log(`sw1: ${sw1}\t p1: ${p1}\t sw2: ${sw2}\t p2: ${p2}`)
+    //   console.log(`nwSwitch.getName(): ${nwSwitch.getName()}`)
+    //   switch (nwSwitch.getName()) {
+    //     case sw1:
+    //       if (Number(p1) == port){
+    //         nwSwitch.addInterface(linkNode['link'], port, nwSwitch.getDpid(), 
+    //           null, true, null);
+    //       }
+    //       break;
+    //     case sw2:
+    //       console.log(`nwSwitch.getName(): ${nwSwitch.getName()}\t sw2: ${sw2}`)
+    //       console.log(`p2: ${p2} \t port: ${port}`)
+    //       if (Number(p2) == port){
+    //         nwSwitch.addInterface(linkNode['link'], port, nwSwitch.getDpid(), 
+    //           null, true, null);
+    //       }
+    //       break;
+    //   }
+}
