@@ -225,7 +225,7 @@ class SDNIXPController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fpath = "$dir/etc/mixtt/graph.xml";
         // Checks if an xml file has been setup before
-        if (is_dir($fpath)) {
+        if (is_file($fpath)) {
             $file = fopen($fpath, "r") or die("Unable to open the file");
             $out = fread($file,filesize($fpath));
             fclose($file);
@@ -281,7 +281,7 @@ class SDNIXPController extends Controller
      * saveXML
      * Saves XML file into Athos to load on next startup of Miru
      * @param  mixed $request
-     * @return void
+     * @return 
      */
     public function saveXML( Request $request) {
         $dir = config("custom.athos.dir", "/athos");

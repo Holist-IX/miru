@@ -43,7 +43,7 @@ Umbrella.prototype.init = function () {
         // Organises the all of the links between switches
         if (node.hasAttribute('link')) {
             
-            // If no link speed is detected we assume it is 1GB speeds
+            // If no link speed is detected we assume it is 10GB speeds
             var linkSpeed = node.hasAttribute('speed') ? node.getAttribute('speed') : 10000;
             var link = {
                 'link': node.getAttribute('link'),

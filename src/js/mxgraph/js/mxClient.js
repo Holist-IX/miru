@@ -776,6 +776,10 @@ if (mxForceIncludes || !(typeof module === 'object' && module.exports != null))
 	mxClient.include(mxClient.basePath+'/js/io/mxDefaultToolbarCodec.js');
 	mxClient.include(mxClient.basePath+'/js/io/mxDefaultPopupMenuCodec.js');
 	mxClient.include(mxClient.basePath+'/js/io/mxEditorCodec.js');
+	mxClient.include(mxClient.basePath+'/js/miru/FaucetGenerator.js');
+	mxClient.include(mxClient.basePath+'/js/miru/Host.js');
+	mxClient.include(mxClient.basePath+'/js/miru/TopologyGenerator.js');
+	mxClient.include(mxClient.basePath+'/js/miru/NetworkSwitch.js');
 // PREPROCESSOR-REMOVE-START
 }
 // PREPROCESSOR-REMOVE-END
