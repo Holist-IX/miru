@@ -38,8 +38,8 @@ class NetworkSwitch {
     return this.interfaces;
   }
 
-  addInterface(name, acl_in, tagged_vlans, redundancy, native_vlan) {
-    iface = new SwitchInterface(name, acl_in, tagged_vlans, redundancy,
+  addSwitchInterface(name, acl_in, port, tagged_vlans, redundancy, native_vlan) {
+    iface = new SwitchInterface(name, acl_in, port, tagged_vlans, redundancy,
       native_vlan);
     this.pushInterface(iface);
     return iface;
@@ -70,10 +70,11 @@ class NetworkSwitch {
 }
 
 class SwitchInterface {
-  constructor(name = null, acl_in = null, tagged_vlans = [],
+  constructor(name = null, acl_in = null, port=null, tagged_vlans = [],
     redundancy = false, native_vlan = null) {
     this.name = name;
     this.acl_in = acl_in;
+    this.port = port;
     this.tagged_vlans = tagged_vlans;
     this.redundancy = redundancy;
     this.native_vlan = native_vlan;

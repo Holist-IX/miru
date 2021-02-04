@@ -2,8 +2,10 @@
  * Faucet config generator
  */
 
- function FaucetGenerator() {
-     this.links =[];
-     this.switches = [];
-     this.faucetobj = {}
+ function FaucetGenerator(topology) {
+    this.topology = topology
  }
+
+FaucetGenerator.prototype.init = function(){
+    this.topology.init();
+}

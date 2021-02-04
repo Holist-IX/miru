@@ -83,8 +83,9 @@ Actions.prototype.init = function()
 	this.addAction('print...', function() { ui.showDialog(new PrintDialog(ui).container, 300, 180, true, true); }, null, 'sprite-print', Editor.ctrlKey + '+P');
 	this.addAction('connectixp', function() {new ixpapi(ui)});
 	this.addAction('umbrella', function() {
-		tg = new TopologyGenerator(ui);
-		tg.init();
+		var faucetConfig = new FaucetGenerator(new TopologyGenerator(ui));
+		// topology = tg.generateTopology();
+		// tg.saveTopo(topology);
 	});
 	this.addAction('tester', function() {new docker(ui).tester()});
 	this.addAction('testeroutput', function() {

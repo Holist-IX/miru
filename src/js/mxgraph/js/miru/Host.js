@@ -62,6 +62,17 @@ class Host{
     return iface;
   }
 
+  cleanInterfacesSubnets() {
+    for (iface of this.interfaces){
+      if (!iface.hasV4Subnet()){
+        iface.addV4Subnet()
+      }
+      if (!iface.hasV6Subnet()){
+        iface.addV6Subnet()
+      }
+    }
+  }
+
   /**
    * Pushes interface to interfaces array
    * @param {HostInterface} iface - Configured host interface
@@ -84,40 +95,67 @@ class HostInterface {
    * @param {string} mac      - MAC address of host
    * @param {string} ipv4     - IPv4 address of host
    * @param {string} ipv6     - IPv6 address of host
-   * @param {number} vid      - Vlan ID of connection
+   * @param {number} vlan      - Vlan ID of connection
    * @param {boolean} tagged  - Whether the vlan is tagged or not
    */
-  constructor(sw = null, swport = null, mac = null, ipv4 = null, ipv6 = null, vid = null, tagged=false) {
-    this.sw = sw;
+  constructor(sw = null, swport = null, mac = null, ipv4 = null, ipv6 = null, vlan = null, tagged=false) {
+    this.switch = sw;
     this.swport = swport;
     this.mac = mac;
     this.ipv4 = ipv4;
     this.ipv6 = ipv6;
-    this.vid = vid;
+    this.vlan = vlan;
     this.tagged = tagged;
   }
+  
+  hasSubnet(addres){
+    return addres.includes('/');
+  }
 
+  removeIPv4Subnet(){
+    if (this.hasSubnet(this.ipv4)){
+      this.ipv4 = this.ipv4.split('/')[0]
+    }
+    return this.ipv4;
+  }
+  
+  removeIPv4Subnet(){
+    if (this.hasSubnet(this.ipv4)){
+      this.ipv4 = this.ipv4.split('/')[0]
+    }
+    return this.ipv4;
+  }
   /**
-   * Add a subnet to the IPv4 object, default is /24
+   * Add a subnet mask to the IPv4 object, default is 24
    * @param {string} subnet - Subnet to add to the end of the address
    */
-  addV4Subnet(subnet= "/24") {
-    this.ipv4 = this.ipv4 + subnet;
+  addV4Subnet(subnet= "24") {
+    var sub = subnet.replace('/', '');
+    this.ipv4 = this.ipv4 + '/' + sub;
   }
 
   /**
-   * Add a subnet to the IPv6 object, default is /24
+   * Add a subnet to the IPv6 object, default is 64
    * @param {string} subnet - Subnet to add to the end of the address
    */
-  addV6Subnet(subnet= "/64") {
-    this.ipv6 = this.ipv6 + subnet;
+  addV6Subnet(subnet= "64") {
+    var sub = subnet.replace('/', '');
+    this.ipv6 = this.ipv6 + '/' + sub;
+  }
+
+  hasV6Subnet(){
+    return this.hasSubnet(this.ipv6)
+  }
+  
+  hasV4Subnet(){
+    return this.hasSubnet(this.ipv4)
   }
 
   /**
    * Gets the name of the switch the host is connected to
    */
   getSwitchName(){
-    return this.sw
+    return this.switch
   }
 
   /**
@@ -125,7 +163,7 @@ class HostInterface {
    * @param {string} sw - Switch name 
    */
   setSwitchName(sw){
-    this.sw = sw;
+    this.switch = sw;
     return sw;
   }
 
@@ -197,16 +235,16 @@ class HostInterface {
    * Gets the Vlan ID address of the interface
    */
   getVid(){
-    return this.vid;
+    return this.vlan;
   }
 
   /**
    * Sets the Vlan ID of the interface
-   * @param {number} vid 
+   * @param {number} vlan 
    */
-  setVid(vid){
-    this.vid = vid;
-    return this.vid;
+  setVid(vlan){
+    this.vlan = vlan;
+    return this.vlan;
   }
 
   /**
