@@ -1,4 +1,4 @@
-/** 
+/**
  * Constructs the Umbrella object for the given ui
  */
 /**
@@ -42,7 +42,7 @@ Umbrella.prototype.init = function () {
         var id = node.id;
         // Organises the all of the links between switches
         if (node.hasAttribute('link')) {
-            
+
             // If no link speed is detected we assume it is 10GB speeds
             var linkSpeed = node.hasAttribute('speed') ? node.getAttribute('speed') : 10000;
             var link = {
@@ -122,7 +122,7 @@ Umbrella.prototype.processSwitch = function (switchNode) {
                         'speed': iface.getAttribute('speed')
                     };
 
-                    this.links.push(link);     
+                    this.links.push(link);
                     var tagged_vlans = []
                     var native_vlan = null;
                     for (var vlan of iface.children){
@@ -386,7 +386,7 @@ Umbrella.prototype.tidyCoreLinks = function () {
             this.coreLinks[sw2][sw2Port][sw1] = sw1Port;
 
             if (this.faucetObject.dps.hasOwnProperty(sw1)){
-                
+
                 this.faucetObject.dps[sw1]['interfaces'][sw1Port] = {
                 'name': link['link'],
                 'opstatus_reconf': false,
@@ -394,9 +394,9 @@ Umbrella.prototype.tidyCoreLinks = function () {
                 'native_vlan': vid
                 }
             }
-            
+
             if (this.faucetObject.dps.hasOwnProperty(sw2)){
-            
+
                 this.faucetObject.dps[sw2]['interfaces'][sw2Port] = {
                     'name': link['link'],
                     'opstatus_reconf': false,
@@ -410,9 +410,9 @@ Umbrella.prototype.tidyCoreLinks = function () {
 
 /**
  * Find route between initial and end node using Djikstra's shortest path first
- * @param {*} graph 
- * @param {*} initial 
- * @param {*} end 
+ * @param {*} graph
+ * @param {*} initial
+ * @param {*} end
  */
 Umbrella.prototype.djikistra = function (graph, initial, end) {
 
@@ -618,7 +618,7 @@ Umbrella.prototype.otherMacACL = function (addr, ports, acl_num) {
 
 /**
  * Writes the IPv4 path encoding rule based on umbrella
- * @param {string} addr     - IPv4 address of the node 
+ * @param {string} addr     - IPv4 address of the node
  * @param {number} outPort  - Port to send the packet out
  * @param {number} acl_num  - Acl number associated with the rule
  * @param {string} mac      - Encoded mac path
@@ -644,7 +644,7 @@ Umbrella.prototype.umbrellaIPv4ACL = function (addr, outPort, acl_num, mac) {
 
 /**
  * Writes the IPv6 path encoding rule based on umbrella
- * @param {string} addr     - IPv6 address of the node 
+ * @param {string} addr     - IPv6 address of the node
  * @param {number} outPort  - Port to send the packet out
  * @param {number} acl_num  - Acl number associated with the rule
  * @param {string} mac      - Encoded mac path
@@ -671,7 +671,7 @@ Umbrella.prototype.umbrellaIPv6ACL = function (addr, outPort, acl_num, mac) {
 
 /**
  * Writes the mac path encoding rule based on umbrella
- * @param {string} addr     - mac address of the node 
+ * @param {string} addr     - mac address of the node
  * @param {number} outPort  - Port to send the packet out
  * @param {number} acl_num  - Acl number associated with the rule
  * @param {string} mac      - Encoded mac path
@@ -727,7 +727,7 @@ Umbrella.prototype.portToMacACL = function (addr, port, acl_num) {
  */
 Umbrella.prototype.cleanYaml = async function(yamlObj){
     var ports = new Set();
-    for(var[swname, sw] of Object.entries(this.faucetObject.dps)){;
+    for(var[swname, sw] of Object.entries(this.faucetObject.dps)){
         for(var [port, details] of Object.entries(sw.interfaces)){
             ports.add(parseInt(port), 10);
         }
@@ -881,14 +881,14 @@ Umbrella.prototype.saveYaml = function(yamlObj){
             me.done = true;
             me.failed = false;
         }
-        
+
     })
     .fail(function(msg){
         alert("Something went wrong in saving faucet config.\nCheck user permissions within ATHOS")
         console.log(msg);
         me.done = true;
         me.failed = true;
-        
+
     })
 };
 
@@ -953,7 +953,7 @@ Umbrella.prototype.saveXml = function(){
 }
 
 /**
- * Class for the shortest path first 
+ * Class for the shortest path first
  */
 class spfGraph {
     constructor() {

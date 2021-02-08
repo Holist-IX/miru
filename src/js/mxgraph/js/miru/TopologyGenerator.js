@@ -6,7 +6,9 @@ function TopologyGenerator(editorUi) {
   this.editorUi = editorUi;
   this.coreLinks = [];
   this.allLinks = [];
+  /**@type {NetworkSwitch[]} */
   this.switches = [];
+  /**@type {Host[]} */
   this.hosts = [];
   this.vlans = {};
   this.linkSplitChar = ',';
@@ -43,7 +45,7 @@ TopologyGenerator.prototype.setLink = function (linkNode) {
   var link = {
     'link': linkNode.getAttribute("link"),
     'speed': linkSpeed,
-    'vid' : vid,
+    'vid' : Number(vid),
     'tagged' : tagged,
     'vlan_description' : vlan_description
   };
@@ -57,7 +59,7 @@ TopologyGenerator.prototype.processSwitchNode = function (switchNode) {
     coreSwitch = switchNode.getAttribute("core");
     if (coreSwitch) {
       nwSwitch.useP4(true);
-      return;
+      return nwSwitch;
     }
   }
   if (!switchNode.hasAttribute("dpid")) {
@@ -83,7 +85,7 @@ TopologyGenerator.prototype.processInterface = function (interfaceNode, nwSwitch
     return null;
   }
   var port = Number(interfaceNode.getAttribute("port"));
-  
+
   if (interfaceNode.hasAttribute("Core")) {
     // We sort out core ports later since not all links are found yet
     return;
@@ -99,13 +101,13 @@ TopologyGenerator.prototype.processInterface = function (interfaceNode, nwSwitch
 };
 
 TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, port, host, speed) {
-  
+
   var vid     = parseInt(vlanNode.getAttribute("vid"), 10);
   var ipv4    = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("ipv4_address") : null;
   var ipv6    = vlanNode.getAttribute("ipv6_address") ? vlanNode.getAttribute("ipv6_address") : null;
   var mac     = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("macaddresses") : null;
   var tagged  = vlanNode.getAttribute("tagged") ? vlanNode.getAttribute("tagged") : false;
-
+  vid = Number(vid);
   host.addInterface(nwSwitch.getName(), port, mac, ipv4, ipv6, vid, tagged);
 
 
@@ -117,16 +119,17 @@ TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, por
   this.allLinks.push(link);
 
   if (tagged) {
-    nwSwitch.addSwitchInterface(host.getName(), port, nwSwitch.getDpid(), vid, false, null)
+    nwSwitch.addSwitchInterface(host.getName(), nwSwitch.getDpid(), port, vid, false, null)
   } else {
-    nwSwitch.addSwitchInterface(host.getName(), port, nwSwitch.getDpid(), null, false, vid)
+    nwSwitch.addSwitchInterface(host.getName(), nwSwitch.getDpid(), port, null, false, vid)
   }
 
   if (!(vid in this.vlans)) {
     this.vlans[vid] = {}
     this.vlans[vid].description = vlanNode.getAttribute("vlan_description");
     this.vlans[vid].tagged = tagged;
-    this.peering_vid = (vlanNode.getAttribute("vlan_description")) == "peering" ? vid : null;
+    this.vlans[vid].name = vlanNode.getAttribute("vlan_name");
+    this.peering_vid = (vlanNode.getAttribute("vlan_name")) == "peering" ? vid : null;
   }
 };
 
@@ -140,7 +143,7 @@ TopologyGenerator.prototype.processCoreLinks = function(){
     p2   = Number(link[3].split(this.portSplitChar)[2]);
     linkNode.linkarray = [link[0], p1.toString(), link[2], p2.toString()];
     [vid, tagged] = this.findCoreLinkVLAN(linkNode);
-    
+
     if (vid){
       var OF_redundancy = true;
       if (sw1.isP4Enabled() || sw2.isP4Enabled()){
@@ -148,16 +151,16 @@ TopologyGenerator.prototype.processCoreLinks = function(){
       }
       switch (tagged){
         case true:
-          sw1.addSwitchInterface(linkNode['link'], sw1.getDpid(), p1, vid, 
-            OF_redundancy, null);
-          sw2.addSwitchInterface(linkNode['link'], sw2.getDpid(), p2, vid, 
-            OF_redundancy, null);
+          sw1.addSwitchInterface(linkNode['link'], sw1.getDpid(), p1, vid,
+            OF_redundancy, null, true);
+          sw2.addSwitchInterface(linkNode['link'], sw2.getDpid(), p2, vid,
+            OF_redundancy, null, true);
           break;
         case false:
-          sw1.addSwitchInterface(linkNode['link'], sw1.getDpid(), p1, null, 
-            OF_redundancy, vid);
-          sw2.addSwitchInterface(linkNode['link'], sw2.getDpid(), p2, null, 
-            OF_redundancy, vid);
+          sw1.addSwitchInterface(linkNode['link'], sw1.getDpid(), p1, null,
+            OF_redundancy, vid, true);
+          sw2.addSwitchInterface(linkNode['link'], sw2.getDpid(), p2, null,
+            OF_redundancy, vid, true);
           break;
       }
     }
@@ -168,36 +171,51 @@ TopologyGenerator.prototype.processCoreLinks = function(){
 TopologyGenerator.prototype.findCoreLinkVLAN = function(linkNode) {
 
   if (linkNode["vid"]) {
-    return [linkNode["vid"], linkNode['tagged']]
+    return [Number(linkNode["vid"]), linkNode['tagged']]
   }
   if (linkNode["vlan_description"]) {
     for ([vid, vlan] of Object.entries(this.switches)){
       if (linkNode["vlan_description"] == vlan.description){
-        return (vid, vlan.description);
+        return (Number(vid), vlan.description);
       }
     }
   }
-  // If no vlan is configured 
+  // If no vlan is configured
   if (!(this.peering_vid)){
     if (this.vlans){
       var vlan_array = Object.entries(this.vlans)
       var vid = vlan_array[0][0];
       var tagged = vlan_array[0][1].tagged;
       console.log(`No peering vlan detected. Using vlan ${vid}. Tagged: ${tagged}`)
-      return [vid, tagged]
+      return [Number(vid), tagged]
     }
       alert("No vlans found. Please configure at least 1 vlan")
       return [null, null]
   }
 }
 
-TopologyGenerator.prototype.getSwitchByName = function (swname){  
-  for (var sw of this.switches){
+TopologyGenerator.prototype.getSwitchByName = function (swname){
+  for (let sw of this.switches){
     if (swname == sw.getName()){
       return sw;
     }
   }
   console.log(`No switch found with the name: ${swname}`)
+  return null;
+}
+
+/**
+ * Returns a host object with specified name
+ * @param {string} hname
+ * @returns {Host}
+ */
+TopologyGenerator.prototype.getHostByName = function (hname){
+  for (let host of this.hosts){
+    if (hname == host.getName()){
+      return host;
+    }
+  }
+  console.log(`No host found with the name: ${hname}`)
   return null;
 }
 

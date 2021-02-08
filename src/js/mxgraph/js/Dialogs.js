@@ -1894,7 +1894,7 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 
 	var swcon = new mxSwitchConnectionHandler(graph)
 	var div = document.createElement('div');
-	
+
 
 	var inner = document.createElement('div');
 	inner.className = 'geTitle';
@@ -1969,7 +1969,7 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 	// Empty function to be compatible with the other dialogs
 	this.init = function()
 	{
-		
+
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -1993,7 +1993,7 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 			// Update the label
 			graph.cellLabelChanged(cell, newVal);
 		}
-		
+
 		editorUi.hideDialog.apply(editorUi, arguments);
 	});
 
@@ -2011,7 +2011,7 @@ var AddLinkDialog = function(editorUi, cell, btnLabel, graph)
 };
 
 
-/* 
+/*
  * SDNIXP
  */
 
@@ -2021,7 +2021,7 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 	var div = document.createElement('div');
 	var dockerAPI = new docker(editorUi);
 	var umb = null;
-	
+
 	var inner = document.createElement('div');
 	inner.className = 'geTitle';
 	inner.style.backgroundColor = 'transparent';
@@ -2053,9 +2053,9 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 	div.appendChild(output);
 
 	if (generate) {
-		console.log(`Tester output generate : ${generate}`)
 		umb = new Umbrella(editorUi);
-		umb.init();
+		faucetConfig = new FaucetGenerator(new TopologyGenerator(editorUi));
+		faucetConfig.init();
 	}
 
 	var btns = document.createElement('div');
@@ -2064,32 +2064,37 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 
 	this.init = function()
 	{
-		n = 1
-		// Checks whether or not the config has finished being generated
-		function checkDone(){
-			if (umb.failed) {
-				console.log(`Config generation failed`);
-				return
-			}
-			if (umb.done) {
-				console.log('Config detected as done')
-				dockerAPI.testerOutput(textarea, btns);
-			} 
-			else if (n < 5000){
-				console.log(`No config detected after ${n}000 milliseconds`)
-				n += 10;
-				to = n * 1000
-				// Checks again after timeout, as larger configs can take longer
-				setTimeout(() => checkDone(), to);
+		// n = 1
+		// // Checks whether or not the config has finished being generated
+		// function checkDone(){
+		// 	if (umb.failed) {
+		// 		console.log(`Config generation failed`);
+		// 		return
+		// 	}
+		// 	if (umb.done) {
+		// 		console.log('Config detected as done')
+		// 		dockerAPI.testerOutput(textarea, btns);
+		// 	}
+		// 	else if (n < 5000){
+		// 		console.log(`No config detected after ${n}000 milliseconds`)
+		// 		n += 10;
+		// 		to = n * 1000
+		// 		// Checks again after timeout, as larger configs can take longer
+		// 		setTimeout(() => checkDone(), to);
 
-			} else {
-				alert(`No config detected after ${n} seconds`);
-				return
-			}
+		// 	} else {
+		// 		alert(`No config detected after ${n} seconds`);
+		// 		return
+		// 	}
 
-		}
-		// Allows for smaller topologies to be generated
-		setTimeout(() => checkDone(), 500);	
+		// }
+		// if (umb) {
+		// 	// Allows for smaller topologies to be generated
+		// 	setTimeout(() => checkDone(), 500);
+		// } else {
+		// 	dockerAPI.testerOutput(textarea, btns)
+		// }
+		setTimeout(() => dockerAPI.testerOutput(textarea, btns), 500);
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{

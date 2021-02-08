@@ -6,7 +6,9 @@ class Host{
    * Basic constructor with empty defaults
    */
   constructor(){
+    /** @type {string} */
     this.name = "";
+    /**@type {HostInterface[]} */
     this.interfaces = [];
   }
 
@@ -17,7 +19,7 @@ class Host{
   getName() {
     return this.name;
   }
-  
+
   /**
    * Switch name setter
    * @param {string} name - Switch name to set
@@ -29,16 +31,31 @@ class Host{
 
   /**
    * Retrieves the switches interfaces
-   * @returns {Array} Interface array
+   * @returns {HostInterface[]} Interface array
    */
   getInterfaces() {
     return this.interfaces;
   }
 
   /**
+   * Retrieves the interface associated with the port number
+   * @param {string} swname - Name of switch
+   * @param {number} port   - Port number of switch
+   * @returns {HostInterface}
+   */
+  getInterfaceBySwitchNameAndPort(swname, port){
+    for (let iface of this.getInterfaces()){
+      if (swname == iface.getSwitchName() && port == iface.getSwitchPort()){
+        return iface;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Replaces the interface array with specified one
-   * @param {Array} interfaces - Array of HostInterfaces
-   * @returns {Array} Interface array
+   * @param {HostInterface[]} interfaces - Array of HostInterfaces
+   * @returns {HostInterface[]} Interface array
    */
   replaceInterfaces(interfaces) {
    this.interfaces = interfaces;
@@ -46,7 +63,7 @@ class Host{
   }
 
   /**
-   * Helper to build a switch interface and associate it with the switch
+   * Helper to build a switch interface and associate it with the host
    * @param {string} sw       - Name of switch the host is connected to
    * @param {number} swport   - Switch port number the host is connected to
    * @param {string} mac      - MAC address of host
@@ -63,7 +80,7 @@ class Host{
   }
 
   cleanInterfacesSubnets() {
-    for (iface of this.interfaces){
+    for (let iface of this.interfaces){
       if (!iface.hasV4Subnet()){
         iface.addV4Subnet()
       }
@@ -75,8 +92,8 @@ class Host{
 
   /**
    * Pushes interface to interfaces array
-   * @param {HostInterface} iface - Configured host interface
-   * @returns {Array} Updated host interfaces
+   * @param {HostInterface[]} iface - Configured host interface
+   * @returns {HostInterface[]} Updated host interfaces
    */
   pushInterface(iface){
     this.interfaces.push(iface);
@@ -95,7 +112,7 @@ class HostInterface {
    * @param {string} mac      - MAC address of host
    * @param {string} ipv4     - IPv4 address of host
    * @param {string} ipv6     - IPv6 address of host
-   * @param {number} vlan      - Vlan ID of connection
+   * @param {number} vlan     - Vlan ID of connection
    * @param {boolean} tagged  - Whether the vlan is tagged or not
    */
   constructor(sw = null, swport = null, mac = null, ipv4 = null, ipv6 = null, vlan = null, tagged=false) {
@@ -107,7 +124,7 @@ class HostInterface {
     this.vlan = vlan;
     this.tagged = tagged;
   }
-  
+
   hasSubnet(addres){
     return addres.includes('/');
   }
@@ -118,12 +135,19 @@ class HostInterface {
     }
     return this.ipv4;
   }
-  
+
   removeIPv4Subnet(){
     if (this.hasSubnet(this.ipv4)){
       this.ipv4 = this.ipv4.split('/')[0]
     }
     return this.ipv4;
+  }
+
+  removeIPv6Subnet(){
+    if (this.hasSubnet(this.ipv6)){
+      this.ipv6 = this.ipv6.split('/')[0]
+    }
+    return this.ipv6;
   }
   /**
    * Add a subnet mask to the IPv4 object, default is 24
@@ -146,7 +170,7 @@ class HostInterface {
   hasV6Subnet(){
     return this.hasSubnet(this.ipv6)
   }
-  
+
   hasV4Subnet(){
     return this.hasSubnet(this.ipv4)
   }
@@ -160,7 +184,7 @@ class HostInterface {
 
   /**
    * Sets the name of the switch the host is connected to
-   * @param {string} sw - Switch name 
+   * @param {string} sw - Switch name
    */
   setSwitchName(sw){
     this.switch = sw;
@@ -182,7 +206,7 @@ class HostInterface {
     this.swport = port;
     return this.swport;
   }
-  
+
   /**
    * Gets the mac address of the interface
    */
@@ -240,7 +264,7 @@ class HostInterface {
 
   /**
    * Sets the Vlan ID of the interface
-   * @param {number} vlan 
+   * @param {number} vlan
    */
   setVid(vlan){
     this.vlan = vlan;
@@ -256,11 +280,10 @@ class HostInterface {
 
   /**
    * Enable or disables tagging
-   * @param {boolean} tag - Whether or not the interface is tagged 
+   * @param {boolean} tag - Whether or not the interface is tagged
    */
   setTagged(tag){
     this.tagged = tag;
     return this.tagged;
   }
 }
-

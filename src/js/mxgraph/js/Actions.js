@@ -84,6 +84,7 @@ Actions.prototype.init = function()
 	this.addAction('connectixp', function() {new ixpapi(ui)});
 	this.addAction('umbrella', function() {
 		var faucetConfig = new FaucetGenerator(new TopologyGenerator(ui));
+		faucetConfig.init();
 		// topology = tg.generateTopology();
 		// tg.saveTopo(topology);
 	});
