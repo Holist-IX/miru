@@ -41,10 +41,10 @@ return [
     'athos' => [
         'dir' => '/athos',
     ],
-    'urge' => [
-        'dir'=> '/urge',
-    ],
-    'deploy' => [
-        'script' => '/urge/script.sh'
-    ]
+    //'urge' => [
+    //    'dir'=> '/urge',
+    //],
+    //'deploy' => [
+    //    'script' => '/urge/script.sh'
+    //]
 ];

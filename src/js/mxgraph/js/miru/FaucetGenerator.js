@@ -1,5 +1,6 @@
 /**
  * Faucet config generator
+ * @param {TopologyGenerator} topology - Topology that the faucet config will be generated for
  */
 function FaucetGenerator(topology) {
   /** @type {TopologyGenerator} */
@@ -9,6 +10,9 @@ function FaucetGenerator(topology) {
   this.faucetConfig = {}
 }
 
+/**
+ *  Function to start topology and faucet configuration generation
+ */
 FaucetGenerator.prototype.init = function () {
   this.topology.init();
   var topo = this.topology.generateTopology();
@@ -35,6 +39,11 @@ FaucetGenerator.prototype.generateConfig = function (topology) {
 }
 
 
+/**
+ * Organises the links into nodes and cost for Shortest path first
+ * @param {String[]} links - Strings in YAML link form {srcSwitch, srcPort, dstSwitch, dstPort}
+ * @returns
+ */
 FaucetGenerator.prototype.SPFOrganise = function (links) {
   link_nodes = []
   for (var link of links) {
@@ -44,10 +53,12 @@ FaucetGenerator.prototype.SPFOrganise = function (links) {
   }
   return link_nodes;
 }
+
 /**
- *
- * @param {NetworkSwitch[]} switches - Array of NetworkSwitch objects
- * @param {Object[]} vlans - Array of objects with vlan information
+ * Initialises the faucet config object with defaults and details from the topology
+ * @param {NetworkSwitch[]} switches  - Array of NetworkSwitch objects
+ * @param {Object[]} vlans            - Array of objects with vlan information
+ * @returns {Object}
  */
 FaucetGenerator.prototype.createFaucetObject = function (switches, vlans) {
   config = {};
@@ -110,8 +121,8 @@ FaucetGenerator.prototype.formatSwInterfaces = function (ifaces) {
 }
 
 /**
- *
- * @param {NetworkSwitch[]} switches
+ * Helper function to go through all the OF switches and generate faucet ACL rules for them
+ * @param {NetworkSwitch[]} switches  - Switches that the faucet ACL rules are to be generated for
  */
 FaucetGenerator.prototype.generateACLS = function (switches) {
   // Only have OF rules for not P4 switches
@@ -138,14 +149,17 @@ FaucetGenerator.prototype.generateACLS = function (switches) {
 }
 
 /**
- *
+ * Generate ACLS for hosts not directly connected to a switch
  * @param {SwitchInterface} iface
  * @param {NetworkSwitch} sw
  * @param {NetworkSwitch} otherSw
  */
 FaucetGenerator.prototype.generateOtherACLS = function (iface, sw, otherSw) {
+  // Main port to use
   var ports = [];
+  // Back up ports
   var otherPorts = [];
+  // Find the ports on the switch that are designated as core switch
   for (let swIface of (sw.getInterfaces()).filter(inter => inter.isCore())) {
 
     [sw1, p1, sw2, p2] = (swIface.getName()).split(',')
@@ -163,43 +177,45 @@ FaucetGenerator.prototype.generateOtherACLS = function (iface, sw, otherSw) {
         break;
     }
   }
-
+  // Need to ensure we keep the ports ordered with main ports at the start of array
   ports = ports.concat(otherPorts)
   let host = this.topology.getHostByName(iface.getName())
   if (host) {
     hostIface = host.getInterfaceBySwitchNameAndPort(otherSw.getName(), iface.getPort())
     if (hostIface) {
+      this.otherMacACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
       this.otherIPv4ACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
       this.otherIPv6ACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
-      this.otherMacACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
     }
   }
 }
 
 /**
- * Generate ACL rules for host directly connected to switch
- * @param {String} ifaceName
- * @param {number} acl_in
- * @param {number} port
+ * Generate ACL rules for a host directly connected to switch
+ * @param {String} ifaceName  - Name of the interface on the switch (Should be the host name)
+ * @param {number} acl_in     - ACL to assign rule to (Default is dp_id of swithc)
+ * @param {number} port       - Switch port the host is connected to
  */
 FaucetGenerator.prototype.generateOwnACLS = function (ifaceName, acl_in, port, swname) {
   let host = this.topology.getHostByName(ifaceName);
   if (host) {
     iface = host.getInterfaceBySwitchNameAndPort(swname, port);
     if (iface) {
+      this.portToMacACL(iface, acl_in, port);
+      this.ownMacACL(iface, acl_in, port);
       this.ownIPv4ACL(iface, acl_in, port);
       this.ownIPv6ACL(iface, acl_in, port);
-      this.ownMacACL(iface, acl_in, port);
-      this.portToMacACL(iface, acl_in, port);
     }
   }
 }
 
 /**
- *
- * @param {HostInterface} iface
- * @param {String[]} route
- * @param {String} swName
+ * Generates ACL Rules for Umbrella mac rewrite
+ * @param {HostInterface} iface - Host interface with address details
+ * @param {String[]} route      - Route from source to destination
+ * @param {String} swName       - The name of the switch that the route originates from
+ * @param {number} acl_num      - ACL number to associate the rule with
+ * @param {string} otherSwName  - Switch that the destination node is connected to
  */
 FaucetGenerator.prototype.generateUmbrellaACLS = function (iface, route, swName, acl_num, otherSwName) {
 
@@ -210,11 +226,13 @@ FaucetGenerator.prototype.generateUmbrellaACLS = function (iface, route, swName,
   var outPort = ports.shift();
   let host = this.topology.getHostByName(iface.getName());
   let hIface = host.getInterfaceBySwitchNameAndPort(otherSwName, iface.getPort());
+
+  // Goes through the route and add mac forwarding and rewrite rules to all OF enabled switches
   while (hop_count < route_len) {
+    // Fills the array with 0's to ensure we end up with a valid MAC address
     for (var i = ports.length; i < 6; i++) {
       ports.push(0)
     }
-
     var mac = "";
     count = 1;
     for (let port of ports) {
@@ -228,13 +246,16 @@ FaucetGenerator.prototype.generateUmbrellaACLS = function (iface, route, swName,
         count++;
       }
     }
+    // Sets mac address rewrite on the source switch
     if (hop_count == 0) {
+      this.umbrellaMacACL(hIface.getMac(), mac, acl_num, outPort);
       this.umbrellaIPv4ACL(hIface, mac, acl_num, outPort);
       this.umbrellaIPv6ACL(hIface, mac, acl_num, outPort);
-      this.umbrellaMacACL(hIface.getMac(), mac, acl_num, outPort);
       last_mac = mac;
       outPort = ports.shift();
       hop_count += 1;
+
+      // Do forwarding based on mac. No need to add v4 and v6 addresses to intermediate paths
     } else {
       let tempSw = this.topology.getSwitchByName(route[hop_count]);
       if (!(tempSw.isP4Enabled())) {
@@ -249,10 +270,10 @@ FaucetGenerator.prototype.generateUmbrellaACLS = function (iface, route, swName,
 }
 
 /**
- *
- * @param {String[]} route
- * @param {string} swName
- * @returns {Number[]}
+ * Gets all the ports that the packet will need to be forwarded out of
+ * @param {String[]} route  - Route of nodes the packet will travel through
+ * @param {string} swName   - Switch name of the source switch
+ * @returns {Number[]}      - Ports to forward to to reach the destination
  */
 FaucetGenerator.prototype.routeToPort = function (route, swName, lastPort) {
 
@@ -286,12 +307,13 @@ FaucetGenerator.prototype.routeToPort = function (route, swName, lastPort) {
 }
 
 /**
- *
+ * Writes ACL rule for IPv4 switching for a host directly connected to the source switch
  * @param {HostInterface} iface   - Host object
  * @param {number} acl            - Acl number
  * @param {number} port           - Port number
  */
 FaucetGenerator.prototype.ownIPv4ACL = function (iface, acl, port) {
+  // Ensures that we only make rules for hosts with IPv4 addresses
   if (!iface.getIPv4()) return;
   this.faucetConfig.acls[acl].push({
     "rule": {
@@ -311,12 +333,13 @@ FaucetGenerator.prototype.ownIPv4ACL = function (iface, acl, port) {
 }
 
 /**
- *
+ * Writes ACL rule for IPv6 switching for a host directly connected to the source switch
  * @param {HostInterface} iface   - Host object
  * @param {number} acl            - Acl number
  * @param {number} port           - Port number
  */
 FaucetGenerator.prototype.ownIPv6ACL = function (iface, acl, port) {
+  // Ensures that we only make rules for hosts with IPv6 addresses
   if (!iface.getIPv6()) return;
   this.faucetConfig.acls[acl].push({
     "rule": {
@@ -337,7 +360,7 @@ FaucetGenerator.prototype.ownIPv6ACL = function (iface, acl, port) {
 };
 
 /**
- *
+ * * Writes ACL rule for MAC switching for a host directly connected to the source switch
  * @param {HostInterface} iface   - Host object
  * @param {number} acl            - Acl number
  * @param {number} port           - Port number
@@ -357,13 +380,13 @@ FaucetGenerator.prototype.ownMacACL = function (iface, acl, port) {
 };
 
 /**
- *
+ * Writes ACL rule to rewrite mac from umbrella mac back to original mac address
  * @param {HostInterface} iface   - Host object
  * @param {number} acl            - Acl number
  * @param {number} port           - Port number
  */
 FaucetGenerator.prototype.portToMacACL = function (iface, acl, port) {
-
+  // Writes rule to rewrite umbrella mac address to original destination address
   portStr = port.toString(16);
   if (portStr.length == 1) {
     portStr = "0" + portStr;
@@ -385,14 +408,16 @@ FaucetGenerator.prototype.portToMacACL = function (iface, acl, port) {
 }
 
 /**
- *
+ * Writes ACL rule for IPv4 switching for a host not directly connected to the source switch
  * @param {HostInterface} iface - Host interface the ACL is generated for
  * @param {Number} acl_num      - ACL number the rule is associated with
  * @param {Number[]} ports      - Switch ports ordered [main, backup]
  * @param {Number} groupId      - GroupID, should be same as main link's switch dpid
  */
 FaucetGenerator.prototype.otherIPv4ACL = function (iface, acl_num, ports, groupId) {
+  // Ensures that we only make rules for hosts with IPv4 addresses
   if (!(iface.getIPv4())) return;
+
   portStr = "[";
   for (let p of ports){
     portStr = `${portStr}${p},`;
@@ -417,13 +442,14 @@ FaucetGenerator.prototype.otherIPv4ACL = function (iface, acl_num, ports, groupI
 }
 
 /**
- *
+ * Writes ACL rule for IPv6 switching for a host not directly connected to the source switch
  * @param {HostInterface} iface - Host interface the ACL is generated for
  * @param {Number} acl_num      - ACL number the rule is associated with
  * @param {Number[]} ports      - Switch ports ordered [main, backup]
  * @param {Number} groupId      - GroupID, should be same as main link's switch dpid
  */
 FaucetGenerator.prototype.otherIPv6ACL = function (iface, acl_num, ports, groupId) {
+  // Ensures that we only make rules for hosts with IPv6 addresses
   if (!(iface.getIPv6())) return;
   portStr = "[";
   for (let p of ports){
@@ -450,7 +476,7 @@ FaucetGenerator.prototype.otherIPv6ACL = function (iface, acl_num, ports, groupI
 }
 
 /**
- *
+ * Writes ACL rule for MAC switching for a host not directly connected to the source switch
  * @param {HostInterface} iface - Host interface the ACL is generated for
  * @param {Number} acl_num      - ACL number the rule is associated with
  * @param {Number[]} ports      - Switch ports ordered [main, backup]
@@ -479,12 +505,13 @@ FaucetGenerator.prototype.otherMacACL = function (iface, acl_num, ports, groupId
 }
 
 /**
- *
+ * Writes ACL rule for IPv4 Umbrella mac rewrite
  * @param {HostInterface} iface
  * @param {String} mac
  * @param {Number} acl_num
  */
 FaucetGenerator.prototype.umbrellaIPv4ACL = function (iface, mac, acl_num, outPort) {
+  // Ensures that we only make rules for hosts with IPv4 addresses
   if (!(iface.getIPv4())) return;
   this.faucetConfig.acls[acl_num].push({
     "rule": {
@@ -504,12 +531,13 @@ FaucetGenerator.prototype.umbrellaIPv4ACL = function (iface, mac, acl_num, outPo
 }
 
 /**
- *
+ * Writes ACL rule for IPv6 Umbrella mac rewrite
  * @param {HostInterface} iface
  * @param {String} mac
  * @param {Number} acl_num
  */
 FaucetGenerator.prototype.umbrellaIPv6ACL = function (iface, mac, acl_num, outPort) {
+  // Ensures that we only make rules for hosts with IPv6 addresses
   if (!(iface.getIPv6())) return;
   this.faucetConfig.acls[acl_num].push({
     "rule": {
@@ -530,7 +558,7 @@ FaucetGenerator.prototype.umbrellaIPv6ACL = function (iface, mac, acl_num, outPo
 }
 
 /**
- *
+ * Writes ACL rule for MAC Umbrella mac rewrite
  * @param {String} hmac
  * @param {String} mac
  * @param {Number} acl_num
@@ -551,6 +579,10 @@ FaucetGenerator.prototype.umbrellaMacACL = function (hmac, mac, acl_num, outPort
   });
 }
 
+/**
+ * Parses all the ports and ids of keys that need to have their quotes removed
+ * @param {*} yamlObj
+ */
 FaucetGenerator.prototype.cleanYaml = async function (yamlObj) {
   var ports = new Set();
   for (var [swname, sw] of Object.entries(this.faucetConfig.dps)) {
@@ -572,16 +604,22 @@ FaucetGenerator.prototype.cleanYaml = async function (yamlObj) {
   this.saveYaml(cleanedYaml);
 }
 
-
-FaucetGenerator.prototype.removeQuotesFromKeys = function (ports, yamlDirty) {
+/**
+ * Removes quotes around keys and other issues to ensure that the yaml object is faucet compliant
+ * @param {Number[]} ports  - Array of ports that need to have their quotes removed
+ * @param {String} yamlStr  - yaml string to be cleaned
+ * @returns
+ */
+FaucetGenerator.prototype.removeQuotesFromKeys = function (ports, yamlStr) {
   return new Promise((resolve, reject) => {
     for (var id of ports) {
       var reg = new RegExp("\'" + id + "\'", "g");
-      yamlDirty = yamlDirty.replace(reg, id.toString())
+      yamlStr = yamlStr.replace(reg, id.toString())
     }
-    yamlDirty = yamlDirty.replaceAll(`'[`, `[`);
-    yamlDirty = yamlDirty.replaceAll(`,]'`, `]`);
-    resolve(yamlDirty);
+    // Resolves the issue of jsyaml not working well with arrays
+    yamlStr = yamlStr.replaceAll(`'[`, `[`);
+    yamlStr = yamlStr.replaceAll(`,]'`, `]`);
+    resolve(yamlStr);
   });
 }
 
@@ -646,7 +684,13 @@ FaucetGenerator.prototype.saveXml = function(){
   })
 }
 
-
+/**
+ * Dijkstra's shortest path algortihm to get the shortest route between two nodes
+ * @param {spfGrapher} graph  - Grapher object with all the details of the nodes
+ * @param {String} initial    - Source node
+ * @param {String} end        - End note
+ * @returns {String[]}        - Returns shortest path between two nodes
+ */
 FaucetGenerator.prototype.dijkstra = function (graph, initial, end) {
   var shortestPaths = {};
   shortestPaths[initial] = [false, 0];
@@ -696,6 +740,7 @@ FaucetGenerator.prototype.dijkstra = function (graph, initial, end) {
   path.reverse();
   return (path);
 }
+
 /**
  * Class for the shortest path first
  */
