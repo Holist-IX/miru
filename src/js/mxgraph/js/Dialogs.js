@@ -2064,36 +2064,6 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 
 	this.init = function()
 	{
-		// n = 1
-		// // Checks whether or not the config has finished being generated
-		// function checkDone(){
-		// 	if (umb.failed) {
-		// 		console.log(`Config generation failed`);
-		// 		return
-		// 	}
-		// 	if (umb.done) {
-		// 		console.log('Config detected as done')
-		// 		dockerAPI.testerOutput(textarea, btns);
-		// 	}
-		// 	else if (n < 5000){
-		// 		console.log(`No config detected after ${n}000 milliseconds`)
-		// 		n += 10;
-		// 		to = n * 1000
-		// 		// Checks again after timeout, as larger configs can take longer
-		// 		setTimeout(() => checkDone(), to);
-
-		// 	} else {
-		// 		alert(`No config detected after ${n} seconds`);
-		// 		return
-		// 	}
-
-		// }
-		// if (umb) {
-		// 	// Allows for smaller topologies to be generated
-		// 	setTimeout(() => checkDone(), 500);
-		// } else {
-		// 	dockerAPI.testerOutput(textarea, btns)
-		// }
 		setTimeout(() => dockerAPI.testerOutput(textarea, btns), 500);
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
