@@ -52,11 +52,6 @@
 	<script type="text/javascript" src="mxgraph/js/Menus.js"></script>
 	<script type="text/javascript" src="mxgraph/js/Toolbar.js"></script>
 	<script type="text/javascript" src="mxgraph/js/Dialogs.js"></script>
-	<script type="text/javascript" src="mxgraph/js/js-yaml.js"></script>
-	<script type="text/javascript" src="mxgraph/js/yaml.js"></script>
-	<script type="text/javascript" src="mxgraph/js/ixpapi.js"></script>
-	<script type="text/javascript" src="mxgraph/js/umbrella.js"></script>
-	<script type="text/javascript" src="mxgraph/js/docker.js"></script>
 	<script type="text/javascript" src="mxgraph/js/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="mxgraph/styles/grapheditor.css">
 <?php $this->append() ?>

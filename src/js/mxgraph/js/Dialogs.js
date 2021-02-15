@@ -2053,7 +2053,7 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 	div.appendChild(output);
 
 	if (generate) {
-		umb = new Umbrella(editorUi);
+		// umb = new Umbrella(editorUi);
 		faucetConfig = new FaucetGenerator(new TopologyGenerator(editorUi));
 		faucetConfig.init();
 	}
