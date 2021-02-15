@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
+ * Modifications Copyright (c) 2021, Christoff Visser
  */
 var mxClient =
 {

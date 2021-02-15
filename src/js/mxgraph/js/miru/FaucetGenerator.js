@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * Faucet config generator
  * @param {TopologyGenerator} topology - Topology that the faucet config will be generated for
  */
@@ -33,9 +36,7 @@ FaucetGenerator.prototype.generateConfig = function (topology) {
   this.faucetConfig = this.createFaucetObject(topology.switches, topology.vlans);
   this.generateACLS(topology.switches);
   var yamlObj = jsyaml.dump(this.faucetConfig);
-  // var cleanedYaml = this.cleanYaml(yamlObj)
   this.cleanYaml(yamlObj);
-  // this.saveYaml(cleanedYaml);
 }
 
 

@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * Starts the API calls for connecting to the IXP Manager
  */
 /**
@@ -33,7 +36,7 @@ docker.prototype.getLogs = function () {
 
 /**
  * Runs an Athos instance with no output
- * @param {*} d 
+ * @param {*} d
  */
 docker.prototype.tester = function (d) {
     let phpurl = window.location.origin + "/sdnixp/generateConfig";

@@ -1,7 +1,9 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * NetworkSwitch object with it's properties
  */
-
 /**
  * @class
  * @typedef {Object} NetworkSwitch

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2021, Christoff Visser
+ */
+
 function display() {
     let url = encodeURI("sdnixp/generateConfig");
     console.log(url);

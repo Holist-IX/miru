@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * Starts the API calls for connecting to the IXP-Manager
  */
 /**
@@ -21,7 +24,7 @@ function ixpapi(ui) {
  */
 ixpapi.prototype.apiCalls = async function () {
     this.details.switches = {};
-    var me = this;    
+    var me = this;
     // Loops through switches in async to prevent race conditions
     async function loop(me) {
         for (var sw_id of Object.values(switches)) {
@@ -48,7 +51,7 @@ ixpapi.prototype.apiCalls = async function () {
 
 /**
  * Retrieves a switch's name, hostname, ipv4/6 address and whether it is active
- * @param {number} id 
+ * @param {number} id
  */
 ixpapi.prototype.getSwitchDetails = function (id) {
     return new Promise((resolve, reject) => {
@@ -206,7 +209,7 @@ ixpapi.prototype.getLayer2Interfaces = async function (id, swname) {
     return new Promise((resolve, reject) => {
         var request = new XMLHttpRequest();
         request.open('GET',
-            `${this.api_url}provisioner/layer2interfaces/switch/${id}.json`, 
+            `${this.api_url}provisioner/layer2interfaces/switch/${id}.json`,
             true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send();
@@ -308,17 +311,17 @@ ixpapi.prototype.addToSidebar = async function () {
                                 for (var [vid, vlan] of Object.entries(values.vlans)) {
                                     var vlanObj = doc.createElement("vlan");
                                     vlanObj.setAttribute(`vid`, vid);
-                                    vlanObj.setAttribute(`vlan_name`, 
+                                    vlanObj.setAttribute(`vlan_name`,
                                             me.details.vlans[vid].name);
-                                    vlanObj.setAttribute("vlan_private", 
+                                    vlanObj.setAttribute("vlan_private",
                                             me.details.vlans[vid].private);
-                                    vlanObj.setAttribute("vlan_description", 
+                                    vlanObj.setAttribute("vlan_description",
                                             me.details.vlans[vid].description);
-                                    vlanObj.setAttribute("macaddresses", 
+                                    vlanObj.setAttribute("macaddresses",
                                             vlan.macaddresses[0]);
-                                    vlanObj.setAttribute("ipv4_address", 
+                                    vlanObj.setAttribute("ipv4_address",
                                             vlan.ipv4_addresses);
-                                    vlanObj.setAttribute("ipv6_address", 
+                                    vlanObj.setAttribute("ipv6_address",
                                             vlan.ipv6_addresses);
                                     portNode.appendChild(vlanObj)
                                 }
@@ -346,7 +349,7 @@ ixpapi.prototype.addToSidebar = async function () {
         await proc(me);
         var style = "rounded=0;whiteSpace=wrap;html=1;";
         swi.id = id;
-        this.xmlSwitches.push(SB.createVertexTemplateEntry(style, width, height, 
+        this.xmlSwitches.push(SB.createVertexTemplateEntry(style, width, height,
                         switchNode, swi.name, null, null, 'rect rectangle box'))
 
         switches.push(swi);

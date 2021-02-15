@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2006-2012, JGraph Ltd
+ * Modifications Copyright (c) 2021, Christoff Visser
  */
 /**
  * Constructs a new graph editor

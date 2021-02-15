@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * Hosts object with it's properties
  */
 class Host{

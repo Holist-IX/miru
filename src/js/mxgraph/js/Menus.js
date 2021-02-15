@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2006-2012, JGraph Ltd
+ * Modifications Copyright (c) 2021, Christoff Visser
  */
 /**
  * Constructs a new graph editor
@@ -482,7 +483,7 @@ Menus.prototype.init = function()
 	})));
 	this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import', 
+		this.addMenuItems(menu, ['new', 'open', '-', 'save', 'saveAs', '-', 'import',
 								 'importYAML', 'export', '-', 'pageSetup', 'print','-',
 								 'umbrella','tester','testeroutput', 'generateRun'], parent);
 	})));

@@ -1,4 +1,7 @@
 /**
+ * Copyright (c) 2021, Christoff Visser
+ */
+/**
  * Constructs a network topology for the graph
  */
 

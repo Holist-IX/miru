@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2006-2012, JGraph Ltd
+ * Modifications Copyright (c) 2021, Christoff Visser
  */
 /**
  * Constructs the actions object for the given UI.
