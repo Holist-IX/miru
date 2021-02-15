@@ -120,9 +120,3 @@ Miru
 </div>
 
 <?php $this->append() ?>
-
-<?php $this->section( 'scripts' ) ?>
-
-<script type="text/javascript" src="js/faucet.js"></script>
-
-<?php $this->append() ?>
