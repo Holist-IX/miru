@@ -23,4 +23,3 @@ Route::group( [ 'prefix' => 'sdnixp' ], function() {
     Route::post(    'saveFaucet',           'SDNIXPController@saveFaucet'           )->name( 'sdnixp@saveFaucet' );
     Route::post(    'saveTopo',             'SDNIXPController@saveTopo'             )->name( 'sdnixp@saveTopo' );
 });
-
