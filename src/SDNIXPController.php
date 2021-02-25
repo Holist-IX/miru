@@ -280,7 +280,9 @@ class SDNIXPController extends Controller
      */
     public function saveFaucet( Request $request) {
         $dir = config("custom.athos.dir", "/athos");
-        file_put_contents("$dir/etc/faucet/faucet.yaml", ($request->input('msg')));
+        $faucetFile = fopen("$dir/etc/faucet/faucet.yaml", "w");
+        // file_put_contents($faucetFile, ($request->input('msg')));
+        fwrite($faucetFile, ($request->input('msg')));
         $out = readfile("$dir/etc/faucet/faucet.yaml");
         return $out;
     }
@@ -293,7 +295,9 @@ class SDNIXPController extends Controller
      */
     public function saveTopo( Request $request) {
         $dir = config("custom.athos.dir", "/athos");
-        file_put_contents("$dir/etc/mixtt/topology.json", ($request->input('msg')));
+        $topologyFile = fopen("$dir/etc/mixtt/topology.json", "w");
+        // file_put_contents($topologyFile, ($request->input('msg')));
+        fwrite($topologyFile, ($request->input('msg')));
         $out = readfile("$dir/etc/mixtt/topology.json");
         return $out;
     }
@@ -306,7 +310,9 @@ class SDNIXPController extends Controller
      */
     public function saveXML( Request $request) {
         $dir = config("custom.athos.dir", "/athos");
-        file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
+        $graphFile = fopen("$dir/etc/mixtt/graph.xml", "w");
+        // file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
+        fwrite($graphFile, ($request->input('msg')));
         $out = readfile("$dir/etc/mixtt/graph.xml");
         return $out;
     }
