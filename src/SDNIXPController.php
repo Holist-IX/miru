@@ -229,7 +229,7 @@ class SDNIXPController extends Controller
     public function getTopologyJson()
     {
         $dir = config("custom.athos.dir", "/athos");
-        $fpath = "$dir/etc/mixtt/topology.json";
+        $fpath = "$dir/etc/athos/topology.json";
         $file = fopen($fpath, "r");
         $out = fread($file, filesize($fpath));
         fclose($file);
@@ -244,7 +244,7 @@ class SDNIXPController extends Controller
     public function getXML()
     {
         $dir = config("custom.athos.dir", "/athos");
-        $fpath = "$dir/etc/mixtt/graph.xml";
+        $fpath = "$dir/etc/athos/graph.xml";
         // Checks if an xml file has been setup before
         if (is_file($fpath)) {
             $file = fopen($fpath, "r") or die("Unable to open the file");
@@ -297,7 +297,7 @@ class SDNIXPController extends Controller
      */
     public function saveTopo( Request $request) {
         $dir = config("custom.athos.dir", "/athos");
-        $fileName = "$dir/etc/mixtt/topology.json";
+        $fileName = "$dir/etc/athos/topology.json";
         $topologyFile = fopen($fileName, "w+");
         // chmod($fileName, 0664);
         // file_put_contents($topologyFile, ($request->input('msg')));
@@ -314,7 +314,7 @@ class SDNIXPController extends Controller
      */
     public function saveXML( Request $request) {
         $dir = config("custom.athos.dir", "/athos");
-        $fileName = "$dir/etc/mixtt/graph.xml";
+        $fileName = "$dir/etc/athos/graph.xml";
         $graphFile = fopen($fileName, "w+");
         // chmod($fileName, 0664);
         // file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
