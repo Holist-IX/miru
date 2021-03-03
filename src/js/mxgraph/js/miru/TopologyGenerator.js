@@ -194,7 +194,9 @@ TopologyGenerator.prototype.findCoreLinkVLAN = function(linkNode) {
       alert("No vlans found. Please configure at least 1 vlan")
       return [null, null]
   }
-  return [null, null]
+  if (this.peering_vid){
+      return[Number(this.peering_vid), this.vlans[this.peering_vid].tagged]
+  }
 }
 
 TopologyGenerator.prototype.getSwitchByName = function (swname){
