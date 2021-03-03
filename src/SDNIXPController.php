@@ -130,11 +130,11 @@ class SDNIXPController extends Controller
         $urge_dir = config("custom.urge.dir");
         if ($urge_dir != NULL or $urge_dir != "")
         {
-            $proc_name = "$dir/ixpman.sh urge";
+            $proc_name = "$dir/runDocker.sh urge";
         }
         else
         {
-            $proc_name = "$dir/ixpman.sh output";
+            $proc_name = "$dir/runDocker.sh output";
         }
 
         $proc = popen("bash $proc_name", 'r');
