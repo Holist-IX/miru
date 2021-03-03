@@ -172,14 +172,13 @@ TopologyGenerator.prototype.processCoreLinks = function(){
 }
 
 TopologyGenerator.prototype.findCoreLinkVLAN = function(linkNode) {
-
   if (linkNode["vid"]) {
     return [Number(linkNode["vid"]), linkNode['tagged']]
   }
   if (linkNode["vlan_description"]) {
     for ([vid, vlan] of Object.entries(this.switches)){
       if (linkNode["vlan_description"] == vlan.description){
-        return (Number(vid), vlan.description);
+        return [Number(vid), vlan.description];
       }
     }
   }
@@ -195,6 +194,7 @@ TopologyGenerator.prototype.findCoreLinkVLAN = function(linkNode) {
       alert("No vlans found. Please configure at least 1 vlan")
       return [null, null]
   }
+  return [null, null]
 }
 
 TopologyGenerator.prototype.getSwitchByName = function (swname){
