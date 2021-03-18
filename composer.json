@@ -1,5 +1,5 @@
 {
-    "name": "belthazaar/sdnixp",
+    "name": "holist-ix/sdnixp",
     "description" : "A package designed to be used with IXP Manager and bring the functionality of a Holistic Internet eXchange",
     "authors": [
         {
@@ -9,5 +9,6 @@
     ],
     "require": {
         "php" : ">=7.4"
-    }
+    },
+    "license": "Apache-2.0"
 }
