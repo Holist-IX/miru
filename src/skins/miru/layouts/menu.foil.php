@@ -435,8 +435,8 @@
                     Last Logins
                 </a>
             </li>
-            <li class="<?= !request()->is( 'utils/faucet' ) ?: 'active' ?>">
-                <a href="<?= route( 'sdnixp@index' ) ?>" class="nav-link">
+            <li class="<?= !request()->is( 'miru' ) ?: 'active' ?>">
+                <a href="<?= route( 'miru@index' ) ?>" class="nav-link">
                     Miru
                 </a>
             </li>
