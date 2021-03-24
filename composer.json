@@ -10,5 +10,19 @@
     "require": {
         "php" : "<=7.4"
     },
-    "license": "Apache-2.0"
+    "license": "Apache-2.0",
+    
+    "autoload": {
+        "psr-4": {
+            "Holistix\\Miru\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Holistix\\Miru\\MiruServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev"
 }
