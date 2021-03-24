@@ -1,6 +1,6 @@
 <?php
 
-namespace Belthazaar\SDNIXP;
+namespace Holistix\Miru;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +14,7 @@ use Entities\{
     User as UserEntity
 };
 
-class SDNIXPServiceProvider extends IxpServiceProvider
+class MiruServiceProvider extends IxpServiceProvider
 {
     /**
      * Register services.
@@ -25,8 +25,8 @@ class SDNIXPServiceProvider extends IxpServiceProvider
     public function register()
     {
         //
-        $this->app->make('Belthazaar\SDNIXP\SDNIXPController');
-        $this->loadViewsFrom(__DIR__.'/views', 'sdnixp');
+        $this->app->make('Holistix\Miru\MiruController');
+        $this->loadViewsFrom(__DIR__.'/views', 'miru');
 
         $this->app->resolving('view', function($view) {
 
@@ -54,14 +54,14 @@ class SDNIXPServiceProvider extends IxpServiceProvider
     public function boot()
     {
         //
-        $this->mapSDNIXPRoutes();
+        $this->mapMiruRoutes();
     }
 
-    protected function mapSDNIXPRoutes()
+    protected function mapMiruRoutes()
     {
         Route::group([
                         'middleware' => config( 'google2fa.enabled' ) ? [ 'web' , 'auth' , '2fa' , 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ] : [ 'web' , 'auth', 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ],
-                        'namespace' => 'Belthazaar\SDNIXP'
+                        'namespace' => 'Holistix\Miru'
                     ], function ($router) {
                 include __DIR__.'/routes.php';
         });
