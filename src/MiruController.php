@@ -1,6 +1,6 @@
 <?php
 
-namespace Belthazaar\SDNIXP;
+namespace Holistix\Miru;
 
 use Illuminate\Http\Request;
 
@@ -27,12 +27,12 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessFailedException;
 
 /**
- * SDNIXP Controller
+ * Miru Controller
  * @author Christoff Visser <christoff@iij.ad.jp>
- * @category SDN IXP
+ * @category Miru
  */
 
-class SDNIXPController extends Controller
+class MiruController extends Controller
 {
     /**
      * index
@@ -58,7 +58,7 @@ class SDNIXPController extends Controller
             $deploy = true;
         }
 
-        return view('sdnixp::miru')->with([
+        return view('miru::miru')->with([
             'urge' => $URGE,
             'd_en' => $deploy,
             'switches' => $switches
@@ -90,7 +90,7 @@ class SDNIXPController extends Controller
             $deploy = true;
         }
 
-        return view('sdnixp::miru')->with([
+        return view('miru::miru')->with([
             'urge' => $URGE,
             'd_en' => $deploy,
             'switches' => $switches
@@ -324,7 +324,7 @@ class SDNIXPController extends Controller
     }
 
     public function dashboard(): View {
-        return view('sdnixp::dashboard');
+        return view('miru::dashboard');
     }
 
 }

@@ -6,20 +6,20 @@
 
 use Illuminate\Http\Request;
 
-Route::group( [ 'prefix' => 'sdnixp' ], function() {
-    Route::get(     '',                     'SDNIXPController@index'                )->name( 'sdnixp@index' );
-    Route::get(     'generateConfig',       'SDNIXPController@runAthos'             )->name( 'sdnixp@runAthos' );
-    Route::get(     'getFaucetYaml',        'SDNIXPController@getFaucetYaml'        )->name( 'sdnixp@getFaucetYaml' );
-    Route::get(     'getTopologyJson',      'SDNIXPController@getTopologyJson'      )->name( 'sdnixp@getTopologyJson' );
-    Route::get(     'getLatestLogs',        'SDNIXPController@getLatestLogs'        )->name( 'sdnixp@getLatestLogs' );
-    Route::get(     'getXML',               'SDNIXPController@getXML'               )->name( 'sdnixp@getXML' );
-    Route::get(     'dashboard',            'SDNIXPController@dashboard'            )->name( 'sdnixp@dashboard');
-    Route::get(     'testConfigWithOutput', 'SDNIXPController@testConfigWithOutput' )->name( 'sdnixp@testConfigWithOutput');
-    Route::get(     'Miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
-    Route::get(     'miru',                 'SDNIXPController@Miru'                 )->name( 'sdnixp@Miru' );
-    Route::get(     'getOF',                'SDNIXPController@getOF'                )->name( 'sdnixp@getOF' );
-    Route::get(     'deploy',               'SDNIXPController@deploy'               )->name( 'sdnixp@deploy' );
-    Route::post(    'saveXML',              'SDNIXPController@saveXML'              )->name( 'sdnixp@saveXML' );
-    Route::post(    'saveFaucet',           'SDNIXPController@saveFaucet'           )->name( 'sdnixp@saveFaucet' );
-    Route::post(    'saveTopo',             'SDNIXPController@saveTopo'             )->name( 'sdnixp@saveTopo' );
+Route::group( [ 'prefix' => 'miru' ], function() {
+    Route::get(     '',                     'MiruController@index'                )->name( 'miru@index' );
+    Route::get(     'generateConfig',       'MiruController@runAthos'             )->name( 'miru@runAthos' );
+    Route::get(     'getFaucetYaml',        'MiruController@getFaucetYaml'        )->name( 'miru@getFaucetYaml' );
+    Route::get(     'getTopologyJson',      'MiruController@getTopologyJson'      )->name( 'miru@getTopologyJson' );
+    Route::get(     'getLatestLogs',        'MiruController@getLatestLogs'        )->name( 'miru@getLatestLogs' );
+    Route::get(     'getXML',               'MiruController@getXML'               )->name( 'miru@getXML' );
+    Route::get(     'dashboard',            'MiruController@dashboard'            )->name( 'miru@dashboard');
+    Route::get(     'testConfigWithOutput', 'MiruController@testConfigWithOutput' )->name( 'miru@testConfigWithOutput');
+    Route::get(     'Miru',                 'MiruController@Miru'                 )->name( 'miru@Miru' );
+    Route::get(     'miru',                 'MiruController@Miru'                 )->name( 'miru@Miru' );
+    Route::get(     'getOF',                'MiruController@getOF'                )->name( 'miru@getOF' );
+    Route::get(     'deploy',               'MiruController@deploy'               )->name( 'miru@deploy' );
+    Route::post(    'saveXML',              'MiruController@saveXML'              )->name( 'miru@saveXML' );
+    Route::post(    'saveFaucet',           'MiruController@saveFaucet'           )->name( 'miru@saveFaucet' );
+    Route::post(    'saveTopo',             'MiruController@saveTopo'             )->name( 'miru@saveTopo' );
 });

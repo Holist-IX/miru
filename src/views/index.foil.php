@@ -26,7 +26,7 @@ Faucet Configuration Generator
                     <p>Opens Miru</p>
                 </div>
                 <div class="row tw-mb-6">
-                    <a class="btn btn-white" type="button" href="<?= route( 'sdnixp@Miru' ) ?>"> To Miru </a>
+                    <a class="btn btn-white" type="button" href="<?= route( 'miru@Miru' ) ?>"> To Miru </a>
                 </div>
                 <div class="row tw-mb-6">
                     <p>Download the latest Faucet config that has been generated </p>

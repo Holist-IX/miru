@@ -259,7 +259,7 @@ TopologyGenerator.prototype.generateTopology = function() {
  * @param {Object} topo - Topology file to save
  */
 TopologyGenerator.prototype.saveTopo = function(topo){
-  let phpurl = window.location.origin + "/sdnixp/saveTopo";
+  let phpurl = window.location.origin + "/miru/saveTopo";
   d = JSON.stringify(topo);
   dstring = String(d);
   var me = this;

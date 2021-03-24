@@ -17,7 +17,7 @@ function docker(ui) {
  * Retrieves the latest logs from Athos
  */
 docker.prototype.getLogs = function () {
-    let url = window.location.origin + "/sdnixp/getLatestLogs";
+    let url = window.location.origin + "/miru/getLatestLogs";
 
     $.ajax(url)
         .done(function (data) {
@@ -39,7 +39,7 @@ docker.prototype.getLogs = function () {
  * @param {*} d
  */
 docker.prototype.tester = function (d) {
-    let phpurl = window.location.origin + "/sdnixp/generateConfig";
+    let phpurl = window.location.origin + "/miru/generateConfig";
     $.ajax(phpurl).done(function (msg) {
             alert(msg);
         })
@@ -56,7 +56,7 @@ docker.prototype.tester = function (d) {
 docker.prototype.testerOutput = function (textarea, btns) {
 
     xhr = new XMLHttpRequest();
-    let url = window.location.origin + "/sdnixp/testConfigWithOutput";
+    let url = window.location.origin + "/miru/testConfigWithOutput";
     var oldVal = "Starting up Athos instance.\nPlease wait...\n";
     var newVal = "";
     let me = this;
@@ -88,7 +88,7 @@ docker.prototype.deploy = function () {
     textarea = document.getElementById("testOutput");
     textarea.innerHTML = "";
     xhr = new XMLHttpRequest();
-    let url = window.location.origin + "/sdnixp/deploy";
+    let url = window.location.origin + "/miru/deploy";
     var oldVal = "Starting deploy process.\nPlease wait...\n";
     var newVal = "";
     var t = document.createTextNode(oldVal);
@@ -138,7 +138,7 @@ docker.prototype.addButtons = function (btns) {
  * Retrieves the latest faucet Config that was generated
  */
 docker.prototype.getYaml = function () {
-    let url = window.location.origin + "/sdnixp/getFaucetYaml";
+    let url = window.location.origin + "/miru/getFaucetYaml";
 
     $.ajax(url)
         .done(function (data) {
@@ -159,7 +159,7 @@ docker.prototype.getYaml = function () {
  * Retrieves the latest set of OpenFlow rules that Urge generated
  */
 docker.prototype.getOFRules = function () {
-    let url = window.location.origin + "/sdnixp/getOF";
+    let url = window.location.origin + "/miru/getOF";
 
     $.ajax(url)
         .done(function (data) {
@@ -180,7 +180,7 @@ docker.prototype.getOFRules = function () {
  * Retrieves the latest topology config that was generated
  */
 docker.prototype.getTopologyConfig = function () {
-    let url = window.location.origin + "/sdnixp/getTopologyJson";
+    let url = window.location.origin + "/miru/getTopologyJson";
 
     $.ajax(url)
         .done(function (data) {

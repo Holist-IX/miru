@@ -364,7 +364,7 @@ ixpapi.prototype.addToSidebar = async function () {
  * @param {Editor} editor - mxgraph editor
  */
 ixpapi.prototype.getXML = function(editor){
-    let phpurl = window.location.origin + "/sdnixp/getXML"
+    let phpurl = window.location.origin + "/miru/getXML"
     var request = new XMLHttpRequest();
     request.open('GET', phpurl, true);
     request.setRequestHeader('Content-Type', 'application/json');
