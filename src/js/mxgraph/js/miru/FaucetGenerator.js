@@ -629,7 +629,7 @@ FaucetGenerator.prototype.removeQuotesFromKeys = function (ports, yamlStr) {
  * @param {string} yamlObj  - Faucet config to save
  */
 FaucetGenerator.prototype.saveYaml = function(yamlObj){
-  let phpurl = window.location.origin + "/sdnixp/saveFaucet";
+  let phpurl = window.location.origin + "/miru/saveFaucet";
   var d = String(yamlObj)
   var me = this;
   $.ajax({
@@ -666,7 +666,7 @@ FaucetGenerator.prototype.saveYaml = function(yamlObj){
  */
 FaucetGenerator.prototype.saveXml = function(){
   xmlfile = mxUtils.getXml(this.topology.editorUi.editor.getGraphXml());
-  let phpurl = window.location.origin + "/sdnixp/saveXML";
+  let phpurl = window.location.origin + "/miru/saveXML";
   dstring = String(xmlfile);
   var me = this;
   $.ajax({
