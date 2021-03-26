@@ -19,68 +19,23 @@ MY_WWW_USER=www-data
 ```
 
 ### Miru
+    
+- In `${IXPROOT}` run `require holist-ix/miru`
+- Edit `$IXPROOT/.env`, uncomment and change `VIEW_SKIN=miru`
 
-- Clone the git repository into `$IXPROOT/vendor/belthazaar`
-- Edit `$IXPROOT/composer.json` and add `"Belthazaar\\SDNIXP\\": "packages/belthazaar/sdnixp/src"` to "autoload": "psr-4" as below
+The packages is now installed however we still need to do a couple more steps so that we can have access to it within IXP Manager. Now we need to add the included skins from the package to be able to use the Miru package.
 
-```JSON
-    "autoload": {
-        "classmap": [
-            "database/seeds",
-            "database",
-            "database"
-        ],
-        "psr-4": {
-             "IXP\\": "app/",
-             "SocialiteProviders\\PeeringDB\\": "data/SocialiteProviders/PeeringDB/",
-             "Belthazaar\\SDNIXP\\": "vendor/belthazaar/sdnixp/src"
-       },
-        "files": [
-            "app/Support/helpers.php"
-        ]
-     },
-```
-
-- Edit $IXPROOT/config/app.php and add the following under 'providers'  
-    `Belthazaar\SDNIXP\SDNIXPServiceProvider::class,`
-- Edit `$IXPROOT/.env`, uncomment and change `VIEW_SKIN=sdnixp`
-- Run the following to finish installation
-
-``` bash
-composer dump-autoload 
-composer install
-```
-
-The packages is now installed however we still need to do a couple more steps so that we can have access to it within IXP Manager. Now we need to add the inlcuded skins from the package to be able to use the Miru package.
-
-The script below will set a softlink within IXP Manager's skinning folder, this helps keeps the relavant parts updated as Miru gets updated, it will also clear out the caches so our skins will load
+The script below will set a softlink within IXP Manager's skinning folder, this helps keeps the relevant parts updated as Miru gets updated.
 
 ```bash
-ln -s ${IXPROOT}/vendor/belthazaar/sdnixp/src/skins/sdnixp ${IXPROOT}/resources/skins/sdnixp
-ln -s ${IXPROOT}/vendor/belthazaar/sdnixp/src/config/custom.php ${IXPROOT}/config/custom.php
+ln -s ${IXPROOT}/vendor/holist-ix/miru/src/skins/miru ${IXPROOT}/resources/skins/miru
+cp ${IXPROOT}/vendor/holist-ix/miru/src/config/custom.php ${IXPROOT}/config/custom.php
 
-ln -s ${IXPROOT}/vendor/belthazaar/sdnixp/src/js/faucet.js ${IXPROOT}/public/js/faucet.js
 ln -s ${IXPROOT}/vendor/belthazaar/sdnixp/src/js/mxgraph ${IXPROOT}/public/mxgraph
 
-chown -R $MY_WWW_USER: ${IXPROOT}/resources/skins/sdnixp
-chmod -R ug+rw ${IXPROOT}/resources/skins/sdnixp
-chown -R $MY_WWW_USER: ${IXPROOT}/resources/skins/sdnixp
-chmod -R ug+rw ${IXPROOT}/resources/skins/sdnixp
+chown -R $MY_WWW_USER: ${IXPROOT}/resources/skins/miru
+chmod -R ug+rw ${IXPROOT}/resources/skins/miru
 
-# Restart IXP Manager for new skin to take effect
-php ${IXPROOT}/artisan down --message='Please wait, currently upgrading...'
-
-# Clear all caches to ensure everything is working
-systemctl restart memcached.service
-php ${IXPROOT}/artisan cache:clear
-php ${IXPROOT}/artisan config:clear
-php ${IXPROOT}/artisan doctrine:clear:metadata:cache
-php ${IXPROOT}/artisan doctrine:clear:query:cache
-php ${IXPROOT}/artisan doctrine:clear:result:cache
-php ${IXPROOT}/artisan route:clear
-php ${IXPROOT}/artisan view:clear
-
-php ${IXPROOT}/artisan up
 ```
 
 The default installation expects Athos to be installed at `/athos`. To change this to a different directory, change `${IXPROOT}/config/custom.php`. The defualt configuration also includes examples of options if you intend to use Miru with Urge, or want to deploy configurations from within Miru.
@@ -107,4 +62,3 @@ Once you have a topology that you are happy with you can generate the configs fr
 If the configuration has been generated successfully, you can start Athos with feedback through `File`->`Run Athos with output`. Miru will start an Athos instance and test the config that has been generated. 
 
 After the tests have run, the option to download logs, and configs will be made available. If a deployment script is setup within `custom.php`, the option to run it will be available.
-
