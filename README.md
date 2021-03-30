@@ -13,7 +13,7 @@ docker <= 19.0
 ### IXP Manager
 This guide will be based on and follow on from the [IXP Manager install instructions](https://docs.ixpmanager.org/install/automated-script/). The install instructions uses the default install location as below, change it as is appropriate:
 
-```
+```bash
 IXPROOT=/srv/ixpmanager
 MY_WWW_USER=www-data
 ```
@@ -33,6 +33,7 @@ cp ${IXPROOT}/vendor/holist-ix/miru/src/config/custom.php ${IXPROOT}/config/cust
 
 ln -s ${IXPROOT}/vendor/belthazaar/sdnixp/src/js/mxgraph ${IXPROOT}/public/mxgraph
 
+# Ensure that our user still has permision to work with everything
 chown -R $MY_WWW_USER: ${IXPROOT}/resources/skins/miru
 chmod -R ug+rw ${IXPROOT}/resources/skins/miru
 
