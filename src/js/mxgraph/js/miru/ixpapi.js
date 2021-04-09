@@ -239,6 +239,9 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
         return;
     }
     for (iface of parsed.layer2interfaces) {
+        if (!iface.name || !(iface.name).includes(this.splitChar)){
+            continue;
+        }
         port_name = Number((iface.name).split(this.splitChar)[2]);
         if (port_name) {
             this.details.switches[swname].interfaces[port_name] = {}
