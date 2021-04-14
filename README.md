@@ -20,7 +20,7 @@ MY_WWW_USER=www-data
 
 ### Miru
     
-- In `${IXPROOT}` run `require holist-ix/miru`
+- In `${IXPROOT}` run `composer require holist-ix/miru`
 - Edit `$IXPROOT/.env` uncomment and change `VIEW_SKIN=miru`
 
 The packages is now installed however we still need to do a couple more steps so that we can have access to it within IXP Manager. Now we need to add the included skins from the package to be able to use the Miru package.
