@@ -97,19 +97,19 @@ TopologyGenerator.prototype.processInterface = function (interfaceNode, nwSwitch
   host.setName(portName);
   // Sets defualt of 1gb speed for hosts if unconfigured
   var speed = interfaceNode.hasAttribute("speed") ? interfaceNode.getAttribute("speed") : 1000;
+  var tagged = interfaceNode.hasAttribute("tagged") ? interfaceNode.getAttribute("tagged") : false;
   for (var vlanNode of interfaceNode.children) {
-    this.processVlanNode(vlanNode, nwSwitch, port, host, speed);
+    this.processVlanNode(vlanNode, nwSwitch, port, host, speed, tagged);
   }
   return host;
 };
 
-TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, port, host, speed) {
+TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, port, host, speed, tagged) {
 
   var vid     = parseInt(vlanNode.getAttribute("vid"), 10);
   var ipv4    = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("ipv4_address") : null;
   var ipv6    = vlanNode.getAttribute("ipv6_address") ? vlanNode.getAttribute("ipv6_address") : null;
   var mac     = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("macaddresses") : null;
-  var tagged  = vlanNode.getAttribute("tagged") ? vlanNode.getAttribute("tagged") : false;
   vid = Number(vid);
   host.addInterface(nwSwitch.getName(), port, mac, ipv4, ipv6, vid, tagged);
 

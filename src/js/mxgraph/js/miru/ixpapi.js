@@ -256,11 +256,14 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 ipv6 = vlan.ipaddresses.ipv6
 
                 port.name = iface["description"];
-                port.vlans[vlan.number] = {
-                    "macaddresses": mac,
-                    "ipv4_addresses": ipv4,
-                    "ipv6_addresses": ipv6
-                };
+                port.vlans[vlan.number] = {}
+                port.vlans[vlan.number].macaddresses = mac;
+                if (vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
+                    port.vlans[vlan.number].ipv4_addresses = ipv4;
+                }
+                if (vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != 'undefined'){
+                    port.vlans[vlan.number].ipv6_addresses = ipv6;
+                }
             }
         }
     }
