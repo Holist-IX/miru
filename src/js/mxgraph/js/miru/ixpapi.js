@@ -258,10 +258,10 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 port.name = iface["description"];
                 port.vlans[vlan.number] = {}
                 port.vlans[vlan.number].macaddresses = mac;
-                if (vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
+                if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
                     port.vlans[vlan.number].ipv4_addresses = ipv4;
                 }
-                if (vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != 'undefined'){
+                if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
                     port.vlans[vlan.number].ipv6_addresses = ipv6;
                 }
             }
@@ -324,12 +324,15 @@ ixpapi.prototype.addToSidebar = async function () {
                                     vlanObj.setAttribute("vlan_description",
                                             me.details.vlans[vid].description);
                                     vlanObj.setAttribute("macaddresses",
-                                            vlan.macaddresses[0]);
-                                    vlanObj.setAttribute("ipv4_address",
+                                    vlan.macaddresses[0]);
+                                    if (vlan.hasOwnProperty("ipv4_addresses")){
+                                        vlanObj.setAttribute("ipv4_address",
                                             vlan.ipv4_addresses);
-                                    vlanObj.setAttribute("ipv6_address",
-                                            vlan.ipv6_addresses);
-                                    portNode.appendChild(vlanObj)
+                                    }
+                                    if (vlan.hasOwnProperty("ipv6_addresses")){
+                                        vlanObj.setAttribute("ipv6_address",
+                                                vlan.ipv6_addresses);
+                                    }
                                 }
                             }
 
