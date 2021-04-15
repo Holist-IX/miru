@@ -84,11 +84,22 @@ class Host{
 
   cleanInterfacesSubnets() {
     for (let iface of this.interfaces){
-      if (!iface.hasV4Subnet()){
+      if (iface.getIPv4() != null && iface.getIPv4() != undefined && !iface.hasV4Subnet()){
         iface.addV4Subnet()
       }
-      if (!iface.hasV6Subnet()){
+      if (iface.getIPv6() != null && iface.getIPv6() != undefined && !iface.hasV6Subnet()){
         iface.addV6Subnet()
+      }
+    }
+  }
+
+  cleanInterfaces() {
+    for (let iface of this.interfaces){
+      if (iface.ipv4 === null || iface.ipv4 === undefined) {
+        delete iface.ipv4;
+      }
+      if (iface.ipv6 === null || iface.ipv6 === undefined) {
+        delete iface.ipv6;
       }
     }
   }

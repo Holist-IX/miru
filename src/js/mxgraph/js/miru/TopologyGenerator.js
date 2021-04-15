@@ -108,8 +108,8 @@ TopologyGenerator.prototype.processVlanNode = function ( vlanNode, nwSwitch, por
 
   var vid     = parseInt(vlanNode.getAttribute("vid"), 10);
   var ipv4    = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("ipv4_address") : null;
-  var ipv6    = vlanNode.getAttribute("ipv6_address") ? vlanNode.getAttribute("ipv6_address") : null;
-  var mac     = vlanNode.getAttribute("ipv4_address") ? vlanNode.getAttribute("macaddresses") : null;
+  var ipv6    = vlanNode.hasAttribute("ipv6_address") ? vlanNode.getAttribute("ipv6_address") : null;
+  var mac     = vlanNode.hasAttribute("macaddresses") ? vlanNode.getAttribute("macaddresses") : null;
   vid = Number(vid);
   host.addInterface(nwSwitch.getName(), port, mac, ipv4, ipv6, vid, tagged);
 
@@ -233,6 +233,7 @@ TopologyGenerator.prototype.generateTopology = function() {
 
   for (host of this.hosts){
     host.cleanInterfacesSubnets();
+    host.cleanInterfaces();
   }
   topology.hosts_matrix = this.hosts;
 

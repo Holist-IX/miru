@@ -333,6 +333,7 @@ ixpapi.prototype.addToSidebar = async function () {
                                         vlanObj.setAttribute("ipv6_address",
                                                 vlan.ipv6_addresses);
                                     }
+                                    portNode.appendChild(vlanObj)
                                 }
                             }
 
