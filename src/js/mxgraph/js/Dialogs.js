@@ -2039,8 +2039,8 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 
 	var textarea = document.createElement('textarea');
 
-	textarea.style.height = '415px';
-	textarea.style.width = '755px';
+	textarea.style.height = '450px';
+	textarea.style.width = '840px';
 	textarea.style.border = "1px solid black";
 	textarea.id = "testOutput";
 	textarea.readOnly = true;
