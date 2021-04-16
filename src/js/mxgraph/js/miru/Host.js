@@ -4,7 +4,7 @@
 /**
  * Hosts object with it's properties
  */
-class Host{
+ class Host{
   /**
    * Basic constructor with empty defaults
    */
@@ -100,6 +100,12 @@ class Host{
       }
       if (iface.ipv6 === null || iface.ipv6 === undefined) {
         delete iface.ipv6;
+      }
+      if (iface.tagged === "true" || iface.tagged === true) {
+        iface.setTagged(true)
+      }
+      if (iface.tagged === "false" || iface.tagged == false){
+        iface.setTagged(false)
       }
     }
   }

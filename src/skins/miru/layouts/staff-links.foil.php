@@ -7,6 +7,5 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         <a class="dropdown-item" href="https://github.com/inex/IXP-Manager">IXP Manager @ GitHub</a>
         <a class="dropdown-item" href="<?= route( 'miru@index' ) ?>"> Miru </a>
-        <a class="dropdown-item" href="<?= route( 'miru@dashboard' ) ?>"> Grafana Dashaboard </a>
     </div>
 </li>
