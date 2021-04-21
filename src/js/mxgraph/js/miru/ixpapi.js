@@ -242,7 +242,16 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
         if (!iface.name || !(iface.name).includes(this.splitChar)){
             continue;
         }
-        port_name = Number((iface.name).split(this.splitChar)[2]);
+        
+        port_prefix = Number((iface.name).split(this.splitChar)[1]);
+        port_name = 0
+
+        if (port_prefix == 0){
+            port_name = Number((iface.name).split(this.splitChar)[2]);
+        } else if (port_prefix <= 2) {
+            port_name = Number((iface.name).split(this.splitChar)[2]) + port_prefix * 100;
+        }
+        
         if (port_name) {
             this.details.switches[swname].interfaces[port_name] = {}
             var port = this.details.switches[swname].interfaces[port_name];
