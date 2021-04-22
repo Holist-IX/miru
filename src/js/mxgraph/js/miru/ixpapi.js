@@ -258,6 +258,7 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
             port.speed = iface.speed;
             port.tagged = iface.dot1q;
             port.configure = true;
+            port.name = iface["description"];
             port.vlans = {};
             port.interfaces = []
             for (vlan of iface.vlans) {
