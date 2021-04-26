@@ -324,7 +324,7 @@ class SwitchInterface {
    * Returns whether the interface
    */
   hasTaggedVlans(){
-    var isTagged = this.tagged_vlans ? true : false;
+    var isTagged = this.tagged_vlans.length ? true : false;
     return isTagged;
   }
 
