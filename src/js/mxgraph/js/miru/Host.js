@@ -44,15 +44,20 @@
    * Retrieves the interface associated with the port number
    * @param {string} swname - Name of switch
    * @param {number} port   - Port number of switch
-   * @returns {HostInterface}
+   * @returns {HostInterface[]}
    */
   getInterfaceBySwitchNameAndPort(swname, port){
+    ifaces = []
     for (let iface of this.getInterfaces()){
       if (swname == iface.getSwitchName() && port == iface.getSwitchPort()){
-        return iface;
+        ifaces.push(iface);
       }
     }
-    return null;
+    if (ifaces.length) {
+      return ifaces;
+    } else {
+      return null;
+    }
   }
 
   /**

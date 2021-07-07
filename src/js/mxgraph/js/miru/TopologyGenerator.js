@@ -98,6 +98,7 @@ TopologyGenerator.prototype.processInterface = function (interfaceNode, nwSwitch
   // Sets defualt of 1gb speed for hosts if unconfigured
   var speed = interfaceNode.hasAttribute("speed") ? interfaceNode.getAttribute("speed") : 1000;
   var tagged = interfaceNode.hasAttribute("tagged") ? interfaceNode.getAttribute("tagged") : false;
+  tagged = (tagged == true || tagged == "true") ? true : false;
   for (var vlanNode of interfaceNode.children) {
     this.processVlanNode(vlanNode, nwSwitch, port, host, speed, tagged);
   }
@@ -152,7 +153,10 @@ TopologyGenerator.prototype.processCoreLinks = function(){
       if (sw1.isP4Enabled() || sw2.isP4Enabled()){
         OF_redundancy = false
       }
-      switch (tagged){
+      // isTagged = (tagged == true || tagged == "true") ? true : false;
+      // To ensure that the core links don't have issues with transporting traffic
+      isTagged = false;
+      switch (isTagged){
         case true:
           sw1.addSwitchInterface(linkNode['link'], sw1.getDpid(), p1, vid,
             OF_redundancy, null, true);

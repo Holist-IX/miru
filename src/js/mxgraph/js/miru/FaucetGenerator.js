@@ -109,11 +109,11 @@ FaucetGenerator.prototype.formatSwInterfaces = function (ifaces) {
         };
         break;
     }
-    if (iface.isCore()){
+    if (iface.isCore()) {
       [s1name, p1, s2name, p2] = iface.getName().split(',');
       s1 = this.topology.getSwitchByName(s1name);
       s2 = this.topology.getSwitchByName(s2name);
-      if (!(s1.isP4Enabled()) && !(s2.isP4Enabled())){
+      if (!(s1.isP4Enabled()) && !(s2.isP4Enabled())) {
         cleanIfaces[iface.getPort()].opstatus_reconf = false;
       }
     }
@@ -182,11 +182,13 @@ FaucetGenerator.prototype.generateOtherACLS = function (iface, sw, otherSw) {
   ports = ports.concat(otherPorts)
   let host = this.topology.getHostByName(iface.getName())
   if (host) {
-    hostIface = host.getInterfaceBySwitchNameAndPort(otherSw.getName(), iface.getPort())
-    if (hostIface) {
-      this.otherMacACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
-      this.otherIPv4ACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
-      this.otherIPv6ACL(hostIface, sw.getDpid(), ports, otherSw.getDpid())
+    hostIfaces = host.getInterfaceBySwitchNameAndPort(otherSw.getName(), iface.getPort())
+    if (hostIfaces) {
+      for (let iface of hostIfaces) {
+        this.otherMacACL(iface, sw.getDpid(), ports, otherSw.getDpid())
+        this.otherIPv4ACL(iface, sw.getDpid(), ports, otherSw.getDpid())
+        this.otherIPv6ACL(iface, sw.getDpid(), ports, otherSw.getDpid())
+      }
     }
   }
 }
@@ -200,12 +202,14 @@ FaucetGenerator.prototype.generateOtherACLS = function (iface, sw, otherSw) {
 FaucetGenerator.prototype.generateOwnACLS = function (ifaceName, acl_in, port, swname) {
   let host = this.topology.getHostByName(ifaceName);
   if (host) {
-    iface = host.getInterfaceBySwitchNameAndPort(swname, port);
-    if (iface) {
-      this.portToMacACL(iface, acl_in, port);
-      this.ownMacACL(iface, acl_in, port);
-      this.ownIPv4ACL(iface, acl_in, port);
-      this.ownIPv6ACL(iface, acl_in, port);
+    let ifaces = host.getInterfaceBySwitchNameAndPort(swname, port);
+    if (ifaces) {
+      for (let iface of ifaces) {
+        this.portToMacACL(iface, acl_in, port);
+        this.ownMacACL(iface, acl_in, port);
+        this.ownIPv4ACL(iface, acl_in, port);
+        this.ownIPv6ACL(iface, acl_in, port);
+      }
     }
   }
 }
@@ -226,46 +230,48 @@ FaucetGenerator.prototype.generateUmbrellaACLS = function (iface, route, swName,
   let ports = this.routeToPort(route, swName, iface.getPort());
   var outPort = ports.shift();
   let host = this.topology.getHostByName(iface.getName());
-  let hIface = host.getInterfaceBySwitchNameAndPort(otherSwName, iface.getPort());
+  let hostIfaces = host.getInterfaceBySwitchNameAndPort(otherSwName, iface.getPort());
 
-  // Goes through the route and add mac forwarding and rewrite rules to all OF enabled switches
-  while (hop_count < route_len) {
-    // Fills the array with 0's to ensure we end up with a valid MAC address
-    for (var i = ports.length; i < 6; i++) {
-      ports.push(0)
-    }
-    var mac = "";
-    count = 1;
-    for (let port of ports) {
-      var portStr = port.toString(16);
-      if (portStr.length == 1) {
-        portStr = "0" + portStr;
+  for (let hIface of hostIfaces) {
+    // Goes through the route and add mac forwarding and rewrite rules to all OF enabled switches
+    while (hop_count < route_len) {
+      // Fills the array with 0's to ensure we end up with a valid MAC address
+      for (var i = ports.length; i < 6; i++) {
+        ports.push(0)
       }
-      mac += portStr;
-      if (count < ports.length) {
-        mac += ":";
-        count++;
+      var mac = "";
+      count = 1;
+      for (let port of ports) {
+        var portStr = port.toString(16);
+        if (portStr.length == 1) {
+          portStr = "0" + portStr;
+        }
+        mac += portStr;
+        if (count < ports.length) {
+          mac += ":";
+          count++;
+        }
       }
-    }
-    // Sets mac address rewrite on the source switch
-    if (hop_count == 0) {
-      this.umbrellaMacACL(hIface.getMac(), mac, acl_num, outPort);
-      this.umbrellaIPv4ACL(hIface, mac, acl_num, outPort);
-      this.umbrellaIPv6ACL(hIface, mac, acl_num, outPort);
-      last_mac = mac;
-      outPort = ports.shift();
-      hop_count += 1;
+      // Sets mac address rewrite on the source switch
+      if (hop_count == 0) {
+        this.umbrellaMacACL(hIface.getMac(), mac, acl_num, outPort);
+        this.umbrellaIPv4ACL(hIface, mac, acl_num, outPort);
+        this.umbrellaIPv6ACL(hIface, mac, acl_num, outPort);
+        last_mac = mac;
+        outPort = ports.shift();
+        hop_count += 1;
 
-      // Do forwarding based on mac. No need to add v4 and v6 addresses to intermediate paths
-    } else {
-      let tempSw = this.topology.getSwitchByName(route[hop_count]);
-      if (!(tempSw.isP4Enabled())) {
-        this.umbrellaMacACL(last_mac, mac, tempSw.getDpid(), outPort);
+        // Do forwarding based on mac. No need to add v4 and v6 addresses to intermediate paths
+      } else {
+        let tempSw = this.topology.getSwitchByName(route[hop_count]);
+        if (!(tempSw.isP4Enabled())) {
+          this.umbrellaMacACL(last_mac, mac, tempSw.getDpid(), outPort);
+        }
+        ports.shift();
+        last_mac = mac;
+        outPort = ports[0];
+        hop_count += 1;
       }
-      ports.shift();
-      last_mac = mac;
-      outPort = ports[0];
-      hop_count += 1;
     }
   }
 }
@@ -420,11 +426,11 @@ FaucetGenerator.prototype.otherIPv4ACL = function (iface, acl_num, ports, groupI
   if (!(iface.getIPv4())) return;
 
   portStr = "[";
-  for (let p of ports){
+  for (let p of ports) {
     portStr = `${portStr}${p},`;
   }
   // Work around jsyaml breaking with arrays
-  portStr = portStr +"]";
+  portStr = portStr + "]";
   this.faucetConfig.acls[acl_num].push({
     "rule": {
       "dl_type": "0x806",
@@ -453,11 +459,11 @@ FaucetGenerator.prototype.otherIPv6ACL = function (iface, acl_num, ports, groupI
   // Ensures that we only make rules for hosts with IPv6 addresses
   if (!(iface.getIPv6())) return;
   portStr = "[";
-  for (let p of ports){
+  for (let p of ports) {
     portStr = `${portStr}${p},`;
   }
   // Work around jsyaml breaking with arrays
-  portStr = portStr +"]";
+  portStr = portStr + "]";
   this.faucetConfig.acls[acl_num].push({
     "rule": {
       "dl_type": "0x86DD",
@@ -485,11 +491,11 @@ FaucetGenerator.prototype.otherIPv6ACL = function (iface, acl_num, ports, groupI
  */
 FaucetGenerator.prototype.otherMacACL = function (iface, acl_num, ports, groupId) {
   portStr = "[";
-  for (let p of ports){
+  for (let p of ports) {
     portStr = `${portStr}${p},`;
   }
   // Work around jsyaml breaking with arrays
-  portStr = portStr +"]";
+  portStr = portStr + "]";
   this.faucetConfig.acls[acl_num].push({
     "rule": {
       "dl_dst": String(iface.getMac()),
@@ -628,43 +634,44 @@ FaucetGenerator.prototype.removeQuotesFromKeys = function (ports, yamlStr) {
  * Sends the Faucet config to Miru to save
  * @param {string} yamlObj  - Faucet config to save
  */
-FaucetGenerator.prototype.saveYaml = function(yamlObj){
+FaucetGenerator.prototype.saveYaml = function (yamlObj) {
   let phpurl = window.location.origin + "/miru/saveFaucet";
   var d = String(yamlObj)
   var me = this;
   $.ajax({
       url: phpurl,
       type: "POST",
-      data: {"msg": d},
-  }).done(function(msg){
+      data: {
+        "msg": d
+      },
+    }).done(function (msg) {
       // Checks whether it is generating configs and running Athos together
       var textArea = document.getElementById(`testOutput`);
-      if (textArea){
-          var textNode = document.createTextNode('faucet config successfully generated and saved to Athos\n');
-          textArea.append(textNode)
-          me.done = true;
-          me.failed = false;
-      }
-      else {
-          alert("faucet config generated successfully. Saved to the push-on-green module")
-          me.done = true;
-          me.failed = false;
+      if (textArea) {
+        var textNode = document.createTextNode('faucet config successfully generated and saved to Athos\n');
+        textArea.append(textNode)
+        me.done = true;
+        me.failed = false;
+      } else {
+        alert("faucet config generated successfully. Saved to the push-on-green module")
+        me.done = true;
+        me.failed = false;
       }
 
-  })
-  .fail(function(msg){
+    })
+    .fail(function (msg) {
       alert("Something went wrong in saving faucet config.\nCheck user permissions within ATHOS")
       console.log(msg);
       me.done = true;
       me.failed = true;
 
-  })
+    })
 };
 
 /**
  * Sends the XML file of the graph object to Miru to save
  */
-FaucetGenerator.prototype.saveXml = function(){
+FaucetGenerator.prototype.saveXml = function () {
   xmlfile = mxUtils.getXml(this.topology.editorUi.editor.getGraphXml());
   let phpurl = window.location.origin + "/miru/saveXML";
   dstring = String(xmlfile);
@@ -672,17 +679,19 @@ FaucetGenerator.prototype.saveXml = function(){
   $.ajax({
       url: phpurl,
       type: "POST",
-      data: {"msg": dstring}
-  }).done(function(msg){
+      data: {
+        "msg": dstring
+      }
+    }).done(function (msg) {
       me.done = true;
       me.failed = false;
-  })
-  .fail(function(msg){
+    })
+    .fail(function (msg) {
       console.log("something went wrong in saving xml")
       console.log(msg)
       me.done = true;
       me.failed = true;
-  })
+    })
 }
 
 /**

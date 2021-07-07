@@ -19,6 +19,7 @@ class NetworkSwitch {
     this.interfaces = interfaces;
     this.hardware = hardware;
     this.P4Switch = P4Switch;
+    this.ports = [];
   }
 
   /**
@@ -56,6 +57,34 @@ class NetworkSwitch {
   }
 
   /**
+   * Checks if the physical port is already assigned to the port
+   * @param {Number} port - Port number of port to check
+   * @returns {Boolean} Whether the port already exists
+   */
+  checkIfPortExists(port) {
+    if (this.ports.includes(port)){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Gets the interface linked to the port number
+   * @param {Number} port - Port number to get
+   * @returns {SwitchInterface} Returns the switch interface linked to the port
+   */
+  getInterface(port) {
+    for (let iface of this.getInterfaces()) {
+      if (iface.getPort() == port) {
+        return iface;
+      }
+    }
+  }
+
+
+  /**
    * Designate if it is a P4 switch or not
    * @param {boolean} enable
    * @returns {boolean}
@@ -74,6 +103,7 @@ class NetworkSwitch {
     this.interfaces = interfaces;
     return this.interfaces;
   }
+
   /**
    * Helper function to build a switch interface and associate it with the switch
    * @param {string} name               - Name of the port
@@ -85,9 +115,18 @@ class NetworkSwitch {
    * @returns {SwitchInterface}
    */
   addSwitchInterface(name, acl_in, port, tagged_vlans, redundancy, native_vlan, core =false) {
-    iface = new SwitchInterface(name, acl_in, port, tagged_vlans, redundancy,
-      native_vlan, core);
-    this.pushInterface(iface);
+    if (!this.checkIfPortExists(port)) {
+      iface = new SwitchInterface(name, acl_in, port, tagged_vlans, redundancy,
+        native_vlan, core);
+        this.ports.push(port)
+        this.pushInterface(iface);
+    }
+    else {
+      let iface = this.getInterface(port);
+      if (tagged_vlans) {
+        iface.addTaggedVlan(tagged_vlans)
+      }
+    }
     return iface;
   }
 
@@ -154,7 +193,10 @@ class SwitchInterface {
     this.name = name;
     this.acl_in = acl_in;
     this.port = port;
-    this.tagged_vlans = tagged_vlans;
+    this.tagged_vlans = [];
+    if (tagged_vlans) {
+      this.addTaggedVlan(tagged_vlans);
+    }
     this.redundancy = redundancy;
     this.native_vlan = native_vlan;
     this.core = core;
@@ -268,12 +310,25 @@ class SwitchInterface {
   }
 
   /**
+   * Adds a tagged vlan to the array
+   * @param {Number} tagged_vlan - VLAN ID between 0 - 4095
+   */
+  addTaggedVlan(tagged_vlan) {
+
+    if (!this.tagged_vlans.includes(tagged_vlan)) {
+      this.tagged_vlans = this.tagged_vlans.concat(tagged_vlan)
+    }
+  }
+
+  /**
    * Returns whether the interface
    */
   hasTaggedVlans(){
-    var isTagged = this.tagged_vlans ? true : false;
+    var isTagged = this.tagged_vlans.length ? true : false;
     return isTagged;
   }
+
+
 
   isCore(){
     return this.core;

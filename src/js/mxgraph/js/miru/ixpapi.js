@@ -242,28 +242,47 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
         if (!iface.name || !(iface.name).includes(this.splitChar)){
             continue;
         }
-        port_name = Number((iface.name).split(this.splitChar)[2]);
+
+        port_prefix = Number((iface.name).split(this.splitChar)[1]);
+        port_name = 0
+
+        if (port_prefix == 0){
+            port_name = Number((iface.name).split(this.splitChar)[2]);
+        } else if (port_prefix <= 2) {
+            port_name = Number((iface.name).split(this.splitChar)[2]) + port_prefix * 100;
+        }
+
         if (port_name) {
             this.details.switches[swname].interfaces[port_name] = {}
             var port = this.details.switches[swname].interfaces[port_name];
             port.speed = iface.speed;
             port.tagged = iface.dot1q;
             port.configure = true;
+            port.name = iface["description"];
             port.vlans = {};
+            port.interfaces = []
             for (vlan of iface.vlans) {
-                mac = vlan.macaddresses;
+                interFace = new Object()
+                interFace.mac = vlan.macaddresses;
+
+                // mac = vlan.macaddresses;
                 ipv4 = vlan.ipaddresses.ipv4
                 ipv6 = vlan.ipaddresses.ipv6
 
-                port.name = iface["description"];
-                port.vlans[vlan.number] = {}
-                port.vlans[vlan.number].macaddresses = mac;
+                // port.name = iface["description"];
+                interFace.name = iface["description"];
+                interFace.vid = vlan.number
+                // port.vlans[vlan.number] = {}
+                // port.vlans[vlan.number].macaddresses = mac;
                 if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
-                    port.vlans[vlan.number].ipv4_addresses = ipv4;
+                    // port.vlans[vlan.number].ipv4_addresses = ipv4;
+                    interFace.ipv4_addresses = ipv4;
                 }
                 if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
-                    port.vlans[vlan.number].ipv6_addresses = ipv6;
+                    // port.vlans[vlan.number].ipv6_addresses = ipv6;
+                    interFace.ipv6_addresses = ipv6;
                 }
+                port.interfaces.push(interFace);
             }
         }
     }
@@ -312,32 +331,58 @@ ixpapi.prototype.addToSidebar = async function () {
                             portNode.setAttribute("port", port);
                             portNode.setAttribute("tagged", values.tagged)
                             portNode.setAttribute("speed", values.speed);
-                            if (values.hasOwnProperty('vlans')) {
-                                var count = 0;
-                                for (var [vid, vlan] of Object.entries(values.vlans)) {
+                            if (values.hasOwnProperty('interfaces')) {
+                                // console.log("interfaces found")
+                                // console.log(values.interfaces)
+                                for (let iface of values.interfaces) {
                                     var vlanObj = doc.createElement("vlan");
-                                    vlanObj.setAttribute(`vid`, vid);
-                                    vlanObj.setAttribute(`vlan_name`,
-                                            me.details.vlans[vid].name);
-                                    vlanObj.setAttribute("vlan_private",
+                                    vid = iface.vid;
+                                    vlanObj.setAttribute('vid', iface.vid)
+                                    vlanObj.setAttribute('vlan_name',
+                                        me.details.vlans[vid].name)
+                                        vlanObj.setAttribute("vlan_private",
                                             me.details.vlans[vid].private);
                                     vlanObj.setAttribute("vlan_description",
                                             me.details.vlans[vid].description);
                                     vlanObj.setAttribute("macaddresses",
-                                    vlan.macaddresses[0]);
-                                    if (vlan.hasOwnProperty("ipv4_addresses")){
+                                    iface.mac);
+                                    if (iface.hasOwnProperty("ipv4_addresses")){
                                         vlanObj.setAttribute("ipv4_address",
-                                            vlan.ipv4_addresses);
+                                        iface.ipv4_addresses);
                                     }
-                                    if (vlan.hasOwnProperty("ipv6_addresses")){
+                                    if (iface.hasOwnProperty("ipv6_addresses")){
                                         vlanObj.setAttribute("ipv6_address",
-                                                vlan.ipv6_addresses);
+                                        iface.ipv6_addresses);
                                     }
                                     portNode.appendChild(vlanObj)
                                 }
                             }
+                            // if (values.hasOwnProperty('vlans')) {
+                            //     var count = 0;
+                            //     for (var [vid, vlan] of Object.entries(values.vlans)) {
+                            //         var vlanObj = doc.createElement("vlan");
+                            //         vlanObj.setAttribute(`vid`, vid);
+                            //         vlanObj.setAttribute(`vlan_name`,
+                            //                 me.details.vlans[vid].name);
+                            //         vlanObj.setAttribute("vlan_private",
+                            //                 me.details.vlans[vid].private);
+                            //         vlanObj.setAttribute("vlan_description",
+                            //                 me.details.vlans[vid].description);
+                            //         vlanObj.setAttribute("macaddresses",
+                            //         vlan.macaddresses[0]);
+                            //         if (vlan.hasOwnProperty("ipv4_addresses")){
+                            //             vlanObj.setAttribute("ipv4_address",
+                            //                 vlan.ipv4_addresses);
+                            //         }
+                            //         if (vlan.hasOwnProperty("ipv6_addresses")){
+                            //             vlanObj.setAttribute("ipv6_address",
+                            //                     vlan.ipv6_addresses);
+                            //         }
+                            //         portNode.appendChild(vlanObj)
+                            //     }
+                            // }
 
-                            if (!values.hasOwnProperty('vlans')) {
+                            if (!values.hasOwnProperty('interfaces')) {
                                 portNode.setAttribute("Core", "true")
                             }
 
