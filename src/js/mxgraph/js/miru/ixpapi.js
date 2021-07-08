@@ -300,6 +300,7 @@ ixpapi.prototype.addToSidebar = async function () {
     var height = 60;
     var width = 120;
     var switches = new Array();
+    var switchCells = this.editorUi.editor.graph.getSelectionCells().filter((c) => c.hasAttribute('switch'))
 
     while (child) {
         container.removeChild(child)
@@ -408,6 +409,17 @@ ixpapi.prototype.addToSidebar = async function () {
                         switchNode, swi.name, null, null, 'rect rectangle box'))
 
         switches.push(swi);
+        matchingSwitchArray = switchCells.filter((s) => s.getAttribute('swid') == switchNode.getAttribute('swid'))
+        if (matchingSwitchArray.length > 0) {
+            matchingSwitch = matchingSwitchArray[0];
+            if (matchingSwitch.hasAttribute('dpid')) {
+                dpid = matchingSwitch.getAttribute('dpid');
+                matchingSwitch.setValue(switchNode);
+                matchingSwitch.setAttribute('dpid', dpid);
+            } else {
+                matchingSwitch.setValue(switchNode);
+            }
+        }
     }
 
     var expand = true;
