@@ -383,7 +383,42 @@ ixpapi.prototype.addToSidebar = async function () {
 
     var expand = true;
     SB.addPaletteFunctions('Switches', 'Switches', (expand != null) ? expand : true, this.xmlSwitches);
+    this.diagramSanityCheck();
 };
+
+/*
+ * Checks the diagram after switches have been updated and verifies if the diagrammed links are still valid
+ */
+ixpapi.prototype.diagramSanityCheck = function () {
+    let graph = this.editorUi.editor.graph
+    var switches = graph.getSelectionCells().filter((c) => c.hasAttribute('switch'))
+    var links = graph.getSelectionCells().filter((c) => c.hasAttribute('link'))
+
+    if (switches.length < 1 && links.length < 1) {
+        return
+    }
+    for (let l of links) {
+        // console.log(l.value)
+        let ln = l.getAttribute('link').split(',')
+        let s1 = ln[0]
+        let s2 = ln[2]
+        matching = switches.filter((s) => {
+            let swname = s.getAttribute('switch');
+            if (swname == s1 || swname == s2) {
+                port = (swname == s1) ? ln[1] : ln[3]
+                for (let iface of s.value.firstChild.childNodes.values()) {
+                    if (iface.getAttribute('name') == port && iface.getAttribute('Core') == 'true') {
+                        return true
+                    }
+                }
+            }
+        });
+        if (matching.length < 2) {
+            alert("Switch core ports have been changed.\nPlease redraw diagram to match new topology");
+        }
+    }
+};
+
 
 /**
  * Gets the XML details for the graph to be used and restored later
