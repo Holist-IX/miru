@@ -188,14 +188,6 @@ ixpapi.prototype.processPorts = function (data, swname) {
             };
             continue
         }
-
-        // if (port.sp_type_name == "Unset") {
-        //     port_name = Number((port.sp_ifName).split(this.splitChar)[2]);
-        //     this.details.switches[swname].interfaces[port_name] = {
-        //         "name": port.sp_name,
-        //         "configured": false
-        //     };
-        // }
     }
     return;
 };
@@ -265,21 +257,15 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 interFace = new Object()
                 interFace.mac = vlan.macaddresses;
 
-                // mac = vlan.macaddresses;
                 ipv4 = vlan.ipaddresses.ipv4
                 ipv6 = vlan.ipaddresses.ipv6
 
-                // port.name = iface["description"];
                 interFace.name = iface["description"];
                 interFace.vid = vlan.number
-                // port.vlans[vlan.number] = {}
-                // port.vlans[vlan.number].macaddresses = mac;
                 if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
-                    // port.vlans[vlan.number].ipv4_addresses = ipv4;
                     interFace.ipv4_addresses = ipv4;
                 }
                 if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
-                    // port.vlans[vlan.number].ipv6_addresses = ipv6;
                     interFace.ipv6_addresses = ipv6;
                 }
                 port.interfaces.push(interFace);
@@ -333,8 +319,6 @@ ixpapi.prototype.addToSidebar = async function () {
                             portNode.setAttribute("tagged", values.tagged)
                             portNode.setAttribute("speed", values.speed);
                             if (values.hasOwnProperty('interfaces')) {
-                                // console.log("interfaces found")
-                                // console.log(values.interfaces)
                                 for (let iface of values.interfaces) {
                                     var vlanObj = doc.createElement("vlan");
                                     vid = iface.vid;
@@ -358,31 +342,6 @@ ixpapi.prototype.addToSidebar = async function () {
                                     portNode.appendChild(vlanObj)
                                 }
                             }
-                            // if (values.hasOwnProperty('vlans')) {
-                            //     var count = 0;
-                            //     for (var [vid, vlan] of Object.entries(values.vlans)) {
-                            //         var vlanObj = doc.createElement("vlan");
-                            //         vlanObj.setAttribute(`vid`, vid);
-                            //         vlanObj.setAttribute(`vlan_name`,
-                            //                 me.details.vlans[vid].name);
-                            //         vlanObj.setAttribute("vlan_private",
-                            //                 me.details.vlans[vid].private);
-                            //         vlanObj.setAttribute("vlan_description",
-                            //                 me.details.vlans[vid].description);
-                            //         vlanObj.setAttribute("macaddresses",
-                            //         vlan.macaddresses[0]);
-                            //         if (vlan.hasOwnProperty("ipv4_addresses")){
-                            //             vlanObj.setAttribute("ipv4_address",
-                            //                 vlan.ipv4_addresses);
-                            //         }
-                            //         if (vlan.hasOwnProperty("ipv6_addresses")){
-                            //             vlanObj.setAttribute("ipv6_address",
-                            //                     vlan.ipv6_addresses);
-                            //         }
-                            //         portNode.appendChild(vlanObj)
-                            //     }
-                            // }
-
                             if (!values.hasOwnProperty('interfaces')) {
                                 portNode.setAttribute("Core", "true")
                             }
