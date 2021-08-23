@@ -14,9 +14,11 @@ use IXP\Http\Controllers\{
     Controller
 };
 
-use Entities\{
-    Switcher    as SwitcherEntity
-};
+// use IXP\Models{
+//     Switcher    as SwitcherEntity
+// };
+
+use IXP\Models\Switcher;
 use Illuminate\View\View;
 use IXP\Utils\View\Alert\Alert;
 use IXP\Utils\View\Alert\Container as AlertContainer;
@@ -45,7 +47,7 @@ class MiruController extends Controller
         $deploy = false;
         // Find switches that's been configured and are active
         $sw_array = array();
-        foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
+        foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
             $sw_array[ $sw->getName() ] = $sw->getId();
         }
         $switches = json_encode($sw_array);
@@ -77,7 +79,7 @@ class MiruController extends Controller
         $deploy = false;
         // Find switches that's been configured and are active
         $sw_array = array();
-        foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
+        foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
             $sw_array[ $sw->getName() ] = $sw->getId();
         }
         $switches = json_encode($sw_array);
