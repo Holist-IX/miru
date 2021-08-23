@@ -9,10 +9,13 @@ use IXP\Providers\IxpServiceProvider;
 
 use Auth, Cache, D2EM, View;
 
-use Entities\{
-    Customer    as CustomerEntity,
-    User as UserEntity
-};
+use IXP\Models\Customer;
+use IXP\Models\User;
+
+// use Entities\{
+//     Customer    as CustomerEntity,
+//     User as UserEntity
+// };
 
 class MiruServiceProvider extends IxpServiceProvider
 {
@@ -22,7 +25,7 @@ class MiruServiceProvider extends IxpServiceProvider
      * @return void
      */
 
-    public function register()
+    public function register(): void
     {
         //
         $this->app->make('Holistix\Miru\MiruController');
@@ -43,6 +46,8 @@ class MiruServiceProvider extends IxpServiceProvider
                 }
 
             });
+
+        $this->mapMiruRoutes();
         });
     }
 
@@ -51,16 +56,12 @@ class MiruServiceProvider extends IxpServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-        //
-        $this->mapMiruRoutes();
-    }
+    public function boot():void{}
 
     protected function mapMiruRoutes()
     {
         Route::group([
-                        'middleware' => config( 'google2fa.enabled' ) ? [ 'web' , 'auth' , '2fa' , 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ] : [ 'web' , 'auth', 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ],
+                        'middleware' => config( 'google2fa.enabled' ) ? [ 'web' , 'auth' , '2fa' , 'assert.privilege:' . User::AUTH_SUPERUSER ] : [ 'web' , 'auth', 'assert.privilege:' . User::AUTH_SUPERUSER ],
                         'namespace' => 'Holistix\Miru'
                     ], function ($router) {
                 include __DIR__.'/routes.php';
