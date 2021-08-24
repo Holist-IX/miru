@@ -1,9 +1,5 @@
 <?php
 
-// Route::get('SDNIXP', function(){
-//     echo 'Hello from the test package!';
-// });
-
 use Illuminate\Http\Request;
 
 Route::group( [ 'prefix' => 'miru' ], function() {
