@@ -180,11 +180,11 @@ ixpapi.prototype.getPorts = function (id, swname) {
 ixpapi.prototype.processPorts = function (data, swname) {
     parsed = JSON.parse(data);
 
-    for (port of parsed.switchports) {
-        if (port.sp_type_name == "Core") {
-            port_name = Number((port.sp_ifName).split(this.splitChar)[2]);
+    for (port of Object.values(parsed.ports)) {
+        if (port.type == "Core") {
+            port_name = Number((port.name).split(this.splitChar)[2]);
             this.details.switches[swname].interfaces[port_name] = {
-                "name": port.sp_name,
+                "name": port.name,
                 "core": true,
                 "configured": true
             };
