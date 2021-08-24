@@ -320,8 +320,6 @@ ixpapi.prototype.addToSidebar = async function () {
                             portNode.setAttribute("tagged", values.tagged)
                             portNode.setAttribute("speed", values.speed);
                             if (values.hasOwnProperty('interfaces')) {
-                                // console.log("interfaces found")
-                                // console.log(values.interfaces)
                                 for (let iface of values.interfaces) {
                                     var vlanObj = doc.createElement("vlan");
                                     vid = iface.vid;
@@ -345,30 +343,6 @@ ixpapi.prototype.addToSidebar = async function () {
                                     portNode.appendChild(vlanObj)
                                 }
                             }
-                            // if (values.hasOwnProperty('vlans')) {
-                            //     var count = 0;
-                            //     for (var [vid, vlan] of Object.entries(values.vlans)) {
-                            //         var vlanObj = doc.createElement("vlan");
-                            //         vlanObj.setAttribute(`vid`, vid);
-                            //         vlanObj.setAttribute(`vlan_name`,
-                            //                 me.details.vlans[vid].name);
-                            //         vlanObj.setAttribute("vlan_private",
-                            //                 me.details.vlans[vid].private);
-                            //         vlanObj.setAttribute("vlan_description",
-                            //                 me.details.vlans[vid].description);
-                            //         vlanObj.setAttribute("macaddresses",
-                            //         vlan.macaddresses[0]);
-                            //         if (vlan.hasOwnProperty("ipv4_addresses")){
-                            //             vlanObj.setAttribute("ipv4_address",
-                            //                 vlan.ipv4_addresses);
-                            //         }
-                            //         if (vlan.hasOwnProperty("ipv6_addresses")){
-                            //             vlanObj.setAttribute("ipv6_address",
-                            //                     vlan.ipv6_addresses);
-                            //         }
-                            //         portNode.appendChild(vlanObj)
-                            //     }
-                            // }
 
                             if (!values.hasOwnProperty('interfaces')) {
                                 portNode.setAttribute("Core", "true")

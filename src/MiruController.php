@@ -6,17 +6,11 @@ use Illuminate\Http\Request;
 
 use Illuminate\Http\RedirectResponse;
 
-use D2EM;
-
 use IXP\Http\Controllers\{
     App,
     Auth,
     Controller
 };
-
-// use IXP\Models{
-//     Switcher    as SwitcherEntity
-// };
 
 use IXP\Models\Switcher;
 use Illuminate\View\View;
@@ -45,14 +39,9 @@ class MiruController extends Controller
     {
         $URGE = false;
         $deploy = false;
-        // Find switches that's been configured and are active
-        // $sw_array = array();
         $sw_array = Switcher::where( 'active', true )
             ->orderBy( 'name' )->get()
             ->keyBy( 'id' );
-        // foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
-            // $sw_array[ $sw->getName() ] = $sw->getId();
-        // }
         
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
@@ -71,7 +60,6 @@ class MiruController extends Controller
         ]);
     }
 
-
     /**
      * Miru
      * Returns view that contains Miru javascript
@@ -82,10 +70,6 @@ class MiruController extends Controller
         $URGE = false;
         $deploy = false;
         // Find switches that's been configured and are active
-        // $sw_array = array();
-        // foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
-        //     $sw_array[ $sw->getName() ] = $sw->getId();
-        // }
         $sw_array = Switcher::where( 'active', true )
             ->orderBy( 'name' )->get()
             ->keyBy( 'id' );
@@ -105,7 +89,6 @@ class MiruController extends Controller
             'switches' => $switches
         ]);
     }
-
 
     /**
      * runAthos
@@ -125,7 +108,6 @@ class MiruController extends Controller
         $out = $process->getOutput();
         return $out;
     }
-
 
     /**
      * testConfigWithOutput
@@ -161,7 +143,6 @@ class MiruController extends Controller
 
         pclose($proc);
     }
-
 
     /**
      * deploy
@@ -291,8 +272,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/faucet/faucet.yaml";
         $faucetFile = fopen($fileName, "w+");
-        // file_put_contents($faucetFile, ($request->input('msg')));
-        // chmod($fileName, 0664);
         fwrite($faucetFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;
@@ -308,8 +287,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/athos/topology.json";
         $topologyFile = fopen($fileName, "w+");
-        // chmod($fileName, 0664);
-        // file_put_contents($topologyFile, ($request->input('msg')));
         fwrite($topologyFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;
@@ -325,8 +302,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/athos/graph.xml";
         $graphFile = fopen($fileName, "w+");
-        // chmod($fileName, 0664);
-        // file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
         fwrite($graphFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;

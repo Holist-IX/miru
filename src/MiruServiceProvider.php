@@ -12,11 +12,6 @@ use Auth, Cache, View;
 use IXP\Models\Customer;
 use IXP\Models\User;
 
-// use Entities\{
-//     Customer    as CustomerEntity,
-//     User as UserEntity
-// };
-
 class MiruServiceProvider extends IxpServiceProvider
 {
     /**
@@ -27,7 +22,6 @@ class MiruServiceProvider extends IxpServiceProvider
 
     public function register(): void
     {
-        //
         $this->app->make('Holistix\Miru\MiruController');
         $this->loadViewsFrom(__DIR__.'/views', 'miru');
 
@@ -40,10 +34,7 @@ class MiruServiceProvider extends IxpServiceProvider
                     if( !( $customers = Cache::get( 'admin_home_customers' ) ) ) {
                         $customers = Customer::select( ['id', 'name'] )->current()->orderBy( 'name' )->get()->keyBy( 'id' )->toArray();
                         Cache::put( 'admin_home_customers', $customers, 3600 );
-                        // $customers = D2EM::getRepository( CustomerEntity::class )->getNames( true );
-                        // Cache::put( 'admin_home_customers', $customers, 3600 );
                     }
-
                     $view->with( 'dd_customer_id_name', $customers );
                 }
 
