@@ -27,7 +27,9 @@ ixpapi.prototype.apiCalls = async function () {
     var me = this;
     // Loops through switches in async to prevent race conditions
     async function loop(me) {
-        for (var sw_id of Object.values(switches)) {
+        console.log(switches)
+        for (var sw of Object.values(switches)) {
+            sw_id = sw.id
             id = await me.getSwitchDetails(sw_id).then(
                 swid => {
                     // Stops if there is no switch found
