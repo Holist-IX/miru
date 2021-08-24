@@ -180,24 +180,16 @@ ixpapi.prototype.getPorts = function (id, swname) {
 ixpapi.prototype.processPorts = function (data, swname) {
     parsed = JSON.parse(data);
 
-    for (port of parsed.switchports) {
-        if (port.sp_type_name == "Core") {
-            port_name = Number((port.sp_ifName).split(this.splitChar)[2]);
+    for (port of Object.values(parsed.ports)) {
+        if (port.type == "Core") {
+            port_name = Number((port.name).split(this.splitChar)[2]);
             this.details.switches[swname].interfaces[port_name] = {
-                "name": port.sp_name,
+                "name": port.name,
                 "core": true,
                 "configured": true
             };
             continue
         }
-
-        // if (port.sp_type_name == "Unset") {
-        //     port_name = Number((port.sp_ifName).split(this.splitChar)[2]);
-        //     this.details.switches[swname].interfaces[port_name] = {
-        //         "name": port.sp_name,
-        //         "configured": false
-        //     };
-        // }
     }
     return;
 };
@@ -267,21 +259,15 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 interFace = new Object()
                 interFace.mac = vlan.macaddresses;
 
-                // mac = vlan.macaddresses;
                 ipv4 = vlan.ipaddresses.ipv4
                 ipv6 = vlan.ipaddresses.ipv6
 
-                // port.name = iface["description"];
                 interFace.name = iface["description"];
                 interFace.vid = vlan.number
-                // port.vlans[vlan.number] = {}
-                // port.vlans[vlan.number].macaddresses = mac;
                 if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
-                    // port.vlans[vlan.number].ipv4_addresses = ipv4;
                     interFace.ipv4_addresses = ipv4;
                 }
                 if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
-                    // port.vlans[vlan.number].ipv6_addresses = ipv6;
                     interFace.ipv6_addresses = ipv6;
                 }
                 port.interfaces.push(interFace);
