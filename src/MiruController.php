@@ -46,10 +46,14 @@ class MiruController extends Controller
         $URGE = false;
         $deploy = false;
         // Find switches that's been configured and are active
-        $sw_array = array();
-        foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
-            $sw_array[ $sw->getName() ] = $sw->getId();
-        }
+        // $sw_array = array();
+        $sw_array = Switcher::where( 'active', true )
+            ->orderBy( 'name' )->get()
+            ->keyBy( 'id' );
+        // foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
+            // $sw_array[ $sw->getName() ] = $sw->getId();
+        // }
+        
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
         if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
@@ -78,10 +82,13 @@ class MiruController extends Controller
         $URGE = false;
         $deploy = false;
         // Find switches that's been configured and are active
-        $sw_array = array();
-        foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
-            $sw_array[ $sw->getName() ] = $sw->getId();
-        }
+        // $sw_array = array();
+        // foreach (D2EM::getRepository( Switcher::class )->getFiltered(true) as $sw){
+        //     $sw_array[ $sw->getName() ] = $sw->getId();
+        // }
+        $sw_array = Switcher::where( 'active', true )
+            ->orderBy( 'name' )->get()
+            ->keyBy( 'id' );
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
         if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
