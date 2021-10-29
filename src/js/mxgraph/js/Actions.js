@@ -82,21 +82,18 @@ Actions.prototype.init = function()
 	});
 	this.addAction('pageSetup...', function() { ui.showDialog(new PageSetupDialog(ui).container, 320, 220, true, true); }).isEnabled = isGraphEnabled;
 	this.addAction('print...', function() { ui.showDialog(new PrintDialog(ui).container, 300, 180, true, true); }, null, 'sprite-print', Editor.ctrlKey + '+P');
-	this.addAction('connectixp', function() {new ixpapi(ui)});
-	this.addAction('umbrella', function() {
-		var faucetConfig = new FaucetGenerator(new TopologyGenerator(ui));
-		faucetConfig.init();
-		// topology = tg.generateTopology();
-		// tg.saveTopo(topology);
-	});
-	this.addAction('tester', function() {new docker(ui).tester()});
 	this.addAction('testeroutput', function() {
 		var dlg = new ShowOutputDialog(ui, "Confirm");
 		ui.showDialog(dlg.container, 900, 625, true, false, null, false);
 		dlg.init();
 	});
-	this.addAction('getcerberus', function() {
-		let dockerAPI = new docker(ui);
+	this.addAction('rollback', function() {
+		var dlg = new ShowRollbackDialog(ui, "Confirm");
+		ui.showDialog(dlg.container, 900, 625, true, false, null, false);
+		dlg.init();
+	});
+	this.addAction('getCerberusConfig', function() {
+		var dockerAPI = new docker(ui);
 		dockerAPI.downloadCerberusConfig();
 	})
 	this.addAction('generateRun', function() {

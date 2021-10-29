@@ -314,8 +314,7 @@ class MiruController extends Controller
     }
 
 
-    public function getCerberusConfig(Request $request): JsonResponse
-    {
+    public function getCerberusConfig(Request $request): JsonResponse {
 
         $curl = curl_init();
         $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "get_config");
@@ -331,7 +330,44 @@ class MiruController extends Controller
         curl_close($curl);
 
         return response()->json( $cleanedResponse);
-        // return $cleanedResponse;
+    }
+
+    public function pushCerberusConfig(Request $request): JsonResponse {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "push_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
+    }
+
+    public function rollbackCerberusConfig(Request $request): JsonResponse {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "rollback_to_last_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+        
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
     }
 
 
