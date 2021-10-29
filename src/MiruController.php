@@ -3,6 +3,7 @@
 namespace Holistix\Miru;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 use Illuminate\Http\RedirectResponse;
 
@@ -13,6 +14,7 @@ use IXP\Http\Controllers\{
 };
 
 use IXP\Models\Switcher;
+use IXP\Models\Log;
 use Illuminate\View\View;
 use IXP\Utils\View\Alert\Alert;
 use IXP\Utils\View\Alert\Container as AlertContainer;
@@ -42,7 +44,7 @@ class MiruController extends Controller
         $sw_array = Switcher::where( 'active', true )
             ->orderBy( 'name' )->get()
             ->keyBy( 'id' );
-        
+
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
         if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
@@ -310,5 +312,27 @@ class MiruController extends Controller
     public function dashboard(): View {
         return view('miru::dashboard');
     }
+
+
+    public function getCerberusConfig(Request $request): JsonResponse
+    {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "get_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+        // $clean2 = json_decode($cleanedResponse, true);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
+        // return $cleanedResponse;
+    }
+
 
 }

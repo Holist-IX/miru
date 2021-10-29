@@ -93,8 +93,12 @@ Actions.prototype.init = function()
 	this.addAction('testeroutput', function() {
 		var dlg = new ShowOutputDialog(ui, "Confirm");
 		ui.showDialog(dlg.container, 900, 625, true, false, null, false);
-		dlg.init()
+		dlg.init();
 	});
+	this.addAction('getcerberus', function() {
+		let dockerAPI = new docker(ui);
+		dockerAPI.downloadCerberusConfig();
+	})
 	this.addAction('generateRun', function() {
 		var dlg = new ShowOutputDialog(ui, "Confirm", true);
 		ui.showDialog(dlg.container, 900, 625, true, false, null, false);

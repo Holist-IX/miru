@@ -6,8 +6,11 @@
  */
 /**
  * API calls to Miru as intermediate to use Athos
+ * @class
  * @constructor
+ * @alias DockerAPI
  * @param {EditorUi} ui - mxgraph EditorUi
+ * @namespace
  */
 function docker(ui) {
     this.ui = ui;
@@ -163,13 +166,16 @@ docker.prototype.getOFRules = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "application/zip"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "rules.zip";
-            a.click();
+            filename = "rules.zip"
+            filetype = "application/zip";
+            docker.downloadFile(data, filename, filetype);
+            // var a = document.createElement("a");
+            // var file = new Blob([data], {
+            //     type: "application/zip"
+            // });
+            // a.href = URL.createObjectURL(file);
+            // a.download = "rules.zip";
+            // a.click();
         })
         .fail(function () {
             alert("Something went wrong");
@@ -209,4 +215,83 @@ docker.prototype.createButton = function (label, func) {
     button.onclick = func;
 
     return button;
+}
+
+
+/**
+ * Helper function to display the configuration used within Cerberus
+ */
+docker.prototype.getCerberusConfig = function () {
+    textArea = document.getElementById("cerberusOutput");
+    textArea.innerHTML = "";
+    let url = window.location.origin + "/miru/getCerberusConfig"
+    var oldVal = "Getting Cerberus configuration...";
+    var newVal = "";
+    var t = document.createTextNode(oldVal);
+    textArea.append(t);
+    $.ajax(url)
+        .done(function (data) {
+            console.log(data);
+            // text = data;
+            text = JSON.stringify(data, null, "\t")
+            textArea.append(text);
+            // var a = document.createElement("a");
+            // var file = new Blob([data], {
+            //     type: "text/plain"
+            // });
+            // a.href = URL.createObjectURL(file);
+            // a.download = "logs.txt";
+            // a.click();
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+}
+
+/**
+ * Helper function to downlaod the cerberus configuration from miru backend.
+ * Calls on {@link docker.downloadFile} to download the file.
+ */
+docker.prototype.downloadCerberusConfig = function() {
+    let url = window.location.origin + "/miru/getCerberusConfig";
+    $.ajax(url)
+        .done(function (data) {
+            filename = "cerberus.json";
+            filetype = "text/json";
+            docker.downloadFile(JSON.stringify(data, null, '\t'), filename, filetype);
+            // downloadFile(date)
+            // var a = document.createElement("a");
+            // var file = new Blob([data], {
+            //     type: "text/plain"
+            // });
+            // a.href = URL.createObjectURL(file);
+            // a.download = "logs.txt";
+            // a.click();
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+}
+
+/**
+ * 
+ * Helper funtion that downloads the inputData with the filename parameter.
+ * TypeString is used to specify the type of file, by default it is text/plain
+ * @param {Object} inputData - Raw data to be downloaded.
+ * @param {string} filename - The filename to store the downloaded file as, including the extension.
+ * @param {string} [typeString="text/plain"] - Type of file in string, i.e text/json or text/plain.
+ * @namespace
+ */
+docker.downloadFile = function(inputData, filename, typeString="text/plain") {
+
+    // var dataToSave = `data:${typeString};charset=utf-8;${encodeURIComponent(inputData)}`;
+    let dataToSave = new Blob([inputData], { 
+        type: typeString })
+    var downloadHandler = document.createElement('a');
+    // downloadHandler.href = URL.createObjectURL(dataToSave);
+    downloadHandler.href = URL.createObjectURL(dataToSave);
+    downloadHandler.download = filename;
+    downloadHandler.click();
+    downloadHandler.remove();
+
 }

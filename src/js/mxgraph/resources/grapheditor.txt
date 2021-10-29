@@ -5,6 +5,7 @@ connectixp=Connect to IXP Manager
 umbrella=Generate Config
 generateRun=Start tests
 testeroutput=Run Athos with output
+getcerberus=Get Cerberus configuration
 tester=Run Athos
 close=Close
 collapse-expand=Collapse/Expand
