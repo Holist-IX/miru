@@ -24,13 +24,9 @@ docker.prototype.getLogs = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "logs.txt";
-            a.click();
+            filename = "logs.txt";
+            filetype = "text/plain";
+            docker.downloadFile(data, filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -145,13 +141,9 @@ docker.prototype.getYaml = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "faucet.yaml";
-            a.click();
+            filename = "faucet.yaml";
+            filetype = "text/plain";
+            docker.downloadFile(data, filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -169,13 +161,6 @@ docker.prototype.getOFRules = function () {
             filename = "rules.zip"
             filetype = "application/zip";
             docker.downloadFile(data, filename, filetype);
-            // var a = document.createElement("a");
-            // var file = new Blob([data], {
-            //     type: "application/zip"
-            // });
-            // a.href = URL.createObjectURL(file);
-            // a.download = "rules.zip";
-            // a.click();
         })
         .fail(function () {
             alert("Something went wrong");
@@ -190,13 +175,9 @@ docker.prototype.getTopologyConfig = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "topology.json";
-            a.click();
+            filename = "topology.json";
+            filetype = "text/json";
+            docker.downloadFile(JSON.stringify(data, null, '\t'), filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -232,16 +213,8 @@ docker.prototype.getCerberusConfig = function () {
     $.ajax(url)
         .done(function (data) {
             console.log(data);
-            // text = data;
             text = JSON.stringify(data, null, "\t")
             textArea.append(text);
-            // var a = document.createElement("a");
-            // var file = new Blob([data], {
-            //     type: "text/plain"
-            // });
-            // a.href = URL.createObjectURL(file);
-            // a.download = "logs.txt";
-            // a.click();
         })
         .fail(function () {
             alert("Something went wrong");
@@ -259,14 +232,7 @@ docker.prototype.downloadCerberusConfig = function() {
             filename = "cerberus.json";
             filetype = "text/json";
             docker.downloadFile(JSON.stringify(data, null, '\t'), filename, filetype);
-            // downloadFile(date)
-            // var a = document.createElement("a");
-            // var file = new Blob([data], {
-            //     type: "text/plain"
-            // });
-            // a.href = URL.createObjectURL(file);
-            // a.download = "logs.txt";
-            // a.click();
+
         })
         .fail(function () {
             alert("Something went wrong");
@@ -274,7 +240,7 @@ docker.prototype.downloadCerberusConfig = function() {
 }
 
 /**
- * 
+ *
  * Helper funtion that downloads the inputData with the filename parameter.
  * TypeString is used to specify the type of file, by default it is text/plain
  * @param {Object} inputData - Raw data to be downloaded.
@@ -285,7 +251,7 @@ docker.prototype.downloadCerberusConfig = function() {
 docker.downloadFile = function(inputData, filename, typeString="text/plain") {
 
     // var dataToSave = `data:${typeString};charset=utf-8;${encodeURIComponent(inputData)}`;
-    let dataToSave = new Blob([inputData], { 
+    let dataToSave = new Blob([inputData], {
         type: typeString })
     var downloadHandler = document.createElement('a');
     // downloadHandler.href = URL.createObjectURL(dataToSave);
