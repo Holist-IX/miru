@@ -388,6 +388,7 @@ ixpapi.prototype.addToSidebar = async function () {
     this.diagramSanityCheck();
 };
 
+
 /*
  * Checks the diagram after switches have been updated and verifies if the diagrammed links are still valid
  */
@@ -395,12 +396,12 @@ ixpapi.prototype.diagramSanityCheck = function () {
     let graph = this.editorUi.editor.graph
     var switches = graph.getSelectionCells().filter((c) => c.hasAttribute('switch'))
     var links = graph.getSelectionCells().filter((c) => c.hasAttribute('link'))
+    var alertSent = false;
 
     if (switches.length < 1 && links.length < 1) {
         return
     }
     for (let l of links) {
-        // console.log(l.value)
         let ln = l.getAttribute('link').split(',')
         let s1 = ln[0]
         let s2 = ln[2]
@@ -415,8 +416,9 @@ ixpapi.prototype.diagramSanityCheck = function () {
                 }
             }
         });
-        if (matching.length < 2) {
+        if (matching.length < 2 && !alertSent) {
             alert("Switch core ports have been changed.\nPlease redraw diagram to match new topology");
+            alertSent = true;
         }
     }
 };
