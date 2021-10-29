@@ -18,4 +18,5 @@ Route::group( [ 'prefix' => 'miru' ], function() {
     Route::post(    'saveXML',              'MiruController@saveXML'              )->name( 'miru@saveXML' );
     Route::post(    'saveFaucet',           'MiruController@saveFaucet'           )->name( 'miru@saveFaucet' );
     Route::post(    'saveTopo',             'MiruController@saveTopo'             )->name( 'miru@saveTopo' );
+    Route::get(     'getCerberusConfig',    'MiruController@getCerberusConfig'    )->name( 'miru@getCerberusConfig');
 });

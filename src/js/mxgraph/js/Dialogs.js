@@ -2055,7 +2055,8 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 
 	if (generate) {
 		// umb = new Umbrella(editorUi);
-		faucetConfig = new FaucetGenerator(new TopologyGenerator(editorUi));
+		topology = new Topology(editorUi);
+		faucetConfig = new FaucetGenerator(topology);
 		faucetConfig.init();
 	}
 
@@ -2066,6 +2067,80 @@ var ShowOutputDialog = function(editorUi, btnLabel, generate=false)
 	this.init = function()
 	{
 		setTimeout(() => dockerAPI.testerOutput(textarea, btns), 500);
+	};
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	cancelBtn.className = 'geBtn';
+
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	var mainBtn = mxUtils.button(btnLabel, function()
+	{
+		editorUi.hideDialog.apply(editorUi, arguments);
+	});
+
+	mainBtn.className = 'geBtn gePrimaryBtn';
+	btns.appendChild(mainBtn);
+
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	div.appendChild(btns);
+
+	this.container = div;
+};
+
+
+var ShowCerberusDialog = function(editorUi, btnLabel)
+{
+
+	var div = document.createElement('div');
+	var dockerAPI = new docker(editorUi);
+
+	var inner = document.createElement('div');
+	inner.className = 'geTitle';
+	inner.style.backgroundColor = 'transparent';
+	inner.style.borderColor = 'transparent';
+	inner.style.whiteSpace = 'nowrap';
+	inner.style.textOverflow = 'clip';
+	inner.style.cursor = 'default';
+	inner.style.paddingBottom = '16px';
+	inner.style.fontSize = '16px';
+
+	mxUtils.write(inner, 'Cerberus output');
+
+	var output = document.createElement('div');
+
+	var textarea = document.createElement('textarea');
+
+	textarea.style.height = '450px';
+	textarea.style.width = '840px';
+	textarea.style.border = "1px solid black";
+	textarea.id = "cerberusOutput";
+	textarea.readOnly = true;
+
+	var textNode = document.createTextNode("")
+	textarea.append(textNode)
+	output.appendChild(textarea);
+
+	div.appendChild(inner);
+
+	div.appendChild(output);
+
+	var btns = document.createElement('div');
+	btns.style.marginTop = '18px';
+	btns.style.textAlign = 'right';
+
+	this.init = function()
+	{
+		setTimeout(() => dockerAPI.getCerberusConfig(textarea, btns), 500);
 	};
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{

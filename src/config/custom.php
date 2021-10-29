@@ -41,6 +41,9 @@ return [
     'athos' => [
         'dir' => '/athos',
     ],
+    'cerberus' => [
+        'api_url' => 'http://localhost:8080/api',
+    ]
     //'urge' => [
     //    'dir'=> '/urge',
     //],
