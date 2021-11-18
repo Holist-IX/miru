@@ -247,6 +247,10 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
         }
 
         if (port_name) {
+            if (iface.type == "core"){
+                console.log(`Found a core port: ${port_name}`)
+                continue;
+            }
             this.details.switches[swname].interfaces[port_name] = {}
             var port = this.details.switches[swname].interfaces[port_name];
             port.speed = iface.speed;
@@ -259,15 +263,16 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 interFace = new Object()
                 interFace.mac = vlan.macaddresses;
 
-                ipv4 = vlan.ipaddresses.ipv4
-                ipv6 = vlan.ipaddresses.ipv6
-
                 interFace.name = iface["description"];
                 interFace.vid = vlan.number
                 if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
+
+                    ipv4 = vlan.ipaddresses.ipv4
                     interFace.ipv4_addresses = ipv4;
                 }
                 if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
+
+                    ipv6 = vlan.ipaddresses.ipv6
                     interFace.ipv6_addresses = ipv6;
                 }
                 port.interfaces.push(interFace);
