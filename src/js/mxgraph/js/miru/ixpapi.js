@@ -27,7 +27,9 @@ ixpapi.prototype.apiCalls = async function () {
     var me = this;
     // Loops through switches in async to prevent race conditions
     async function loop(me) {
-        for (var sw_id of Object.values(switches)) {
+        console.log(switches)
+        for (var sw of Object.values(switches)) {
+            sw_id = sw.id
             id = await me.getSwitchDetails(sw_id).then(
                 swid => {
                     // Stops if there is no switch found
@@ -178,11 +180,11 @@ ixpapi.prototype.getPorts = function (id, swname) {
 ixpapi.prototype.processPorts = function (data, swname) {
     parsed = JSON.parse(data);
 
-    for (port of parsed.switchports) {
-        if (port.sp_type_name == "Core") {
-            port_name = Number((port.sp_ifName).split(this.splitChar)[2]);
+    for (port of Object.values(parsed.ports)) {
+        if (port.type == "Core") {
+            port_name = Number((port.name).split(this.splitChar)[2]);
             this.details.switches[swname].interfaces[port_name] = {
-                "name": port.sp_name,
+                "name": port.name,
                 "core": true,
                 "configured": true
             };
@@ -245,6 +247,10 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
         }
 
         if (port_name) {
+            if (iface.type == "core"){
+                console.log(`Found a core port: ${port_name}`)
+                continue;
+            }
             this.details.switches[swname].interfaces[port_name] = {}
             var port = this.details.switches[swname].interfaces[port_name];
             port.speed = iface.speed;
@@ -257,15 +263,16 @@ ixpapi.prototype.processLayer2Interfaces = async function (data, swname) {
                 interFace = new Object()
                 interFace.mac = vlan.macaddresses;
 
-                ipv4 = vlan.ipaddresses.ipv4
-                ipv6 = vlan.ipaddresses.ipv6
-
                 interFace.name = iface["description"];
                 interFace.vid = vlan.number
                 if (vlan.ipaddresses.hasOwnProperty("ipv4") && vlan.ipaddresses.ipv4 && vlan.ipaddresses.ipv4 != 'undefined'){
+
+                    ipv4 = vlan.ipaddresses.ipv4
                     interFace.ipv4_addresses = ipv4;
                 }
                 if (vlan.ipaddresses.hasOwnProperty("ipv6") && vlan.ipaddresses.ipv6 && vlan.ipaddresses.ipv6 != "undefined"){
+
+                    ipv6 = vlan.ipaddresses.ipv6
                     interFace.ipv6_addresses = ipv6;
                 }
                 port.interfaces.push(interFace);
@@ -386,6 +393,7 @@ ixpapi.prototype.addToSidebar = async function () {
     this.diagramSanityCheck();
 };
 
+
 /*
  * Checks the diagram after switches have been updated and verifies if the diagrammed links are still valid
  */
@@ -393,12 +401,12 @@ ixpapi.prototype.diagramSanityCheck = function () {
     let graph = this.editorUi.editor.graph
     var switches = graph.getSelectionCells().filter((c) => c.hasAttribute('switch'))
     var links = graph.getSelectionCells().filter((c) => c.hasAttribute('link'))
+    var alertSent = false;
 
     if (switches.length < 1 && links.length < 1) {
         return
     }
     for (let l of links) {
-        // console.log(l.value)
         let ln = l.getAttribute('link').split(',')
         let s1 = ln[0]
         let s2 = ln[2]
@@ -413,8 +421,9 @@ ixpapi.prototype.diagramSanityCheck = function () {
                 }
             }
         });
-        if (matching.length < 2) {
+        if (matching.length < 2 && !alertSent) {
             alert("Switch core ports have been changed.\nPlease redraw diagram to match new topology");
+            alertSent = true;
         }
     }
 };

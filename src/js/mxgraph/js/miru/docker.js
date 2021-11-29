@@ -6,8 +6,11 @@
  */
 /**
  * API calls to Miru as intermediate to use Athos
+ * @class
  * @constructor
+ * @alias DockerAPI
  * @param {EditorUi} ui - mxgraph EditorUi
+ * @namespace
  */
 function docker(ui) {
     this.ui = ui;
@@ -21,13 +24,9 @@ docker.prototype.getLogs = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "logs.txt";
-            a.click();
+            filename = "logs.txt";
+            filetype = "text/plain";
+            docker.downloadFile(data, filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -74,7 +73,7 @@ docker.prototype.testerOutput = function (textarea, btns) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             console.log("Complete = " + xhr.responseText);
-            me.addButtons(btns);
+            me.addCerberusButtons(btns);
         }
     };
     xhr.send();
@@ -134,6 +133,85 @@ docker.prototype.addButtons = function (btns) {
     }
 };
 
+
+/**
+ * Adds the required buttons to deploy to Cerberus
+ * @param {Array} btns  - Array of btns to which the new buttons are to be added to
+ */
+ docker.prototype.addCerberusButtons = function (btns) {
+
+    var getTopologyConfig = this.createButton("Download Topology json", this.getTopologyConfig);
+    btns.insertBefore(getTopologyConfig, btns.firstChild);
+    var getLogbtn = this.createButton("Download logs", this.getLogs);
+    btns.insertBefore(getLogbtn, btns.firstChild);
+    var pushConfBtn = this.createButton("Deploy to production", this.pushNewConfig);
+    btns.insertBefore(pushConfBtn, btns.firstChild);
+};
+
+
+/**
+ * Pulls the topology that was sent to Athos and pushes it through to the server
+ */
+docker.prototype.pushNewConfig = function() {
+    let url = window.location.origin + "/miru/getTopologyJson";
+    $.ajax(url)
+        .done(function (topology) {
+            let phpurl = window.location.origin + "/miru/pushCerberusConfig";
+
+            datastring = String(topology);
+            // console.log(`The topology as datastring:\n ${datastring}`)
+            let textArea = document.getElementById("testOutput");
+            textArea.innerHTML = "";
+            var oldVal = "Starting deploy process.\nPlease wait...\n";
+            var newVal = "";
+            var t = document.createTextNode(oldVal);
+            textArea.append(t);
+            let me = this;
+            $.ajax({
+                url: phpurl,
+                type: "POST",
+                data: {"msg": datastring}
+            }).done(function(msg){
+                let textArea = document.getElementById("testOutput");
+                // TODO: Clean up output that is returned from Cerberus
+                var textNode = document.createTextNode(JSON.stringify(msg));
+                textArea.append(textNode);
+                }
+            )
+            .fail(function(msg){
+                let textArea = document.getElementById("testOutput");
+                let textNode = document.createTextNode(`Config failed to be deployed.\nThe following was sent from cerberus:\n ${msg}`)
+                textArea.append(textNode);
+            })
+        })
+        .fail(function () {
+            alert("Something went wrong");
+    });
+}
+
+
+docker.prototype.rollbackCerberusConfiguration = function() {
+    let url = window.location.origin + "/miru/rollbackCerberusConfig";
+
+    $.ajax(url)
+        .done(function (response){
+            let textArea = document.getElementById("testOutput");
+                var textNode = document.createTextNode(JSON.stringify(response));
+                textArea.append(textNode);
+        })
+        .fail(function (response){
+            let textArea = document.getElementById("testOutput");
+            err_msg = (`Config failed to be deployed.\n The following was sent from cerberus: ${response}`);
+            if (textArea) {
+                let textNode = document.createTextNode(err_msg)
+            } else {
+                console.log(err_msg);
+            }
+        })
+
+}
+
+
 /**
  * Retrieves the latest faucet Config that was generated
  */
@@ -142,13 +220,9 @@ docker.prototype.getYaml = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "faucet.yaml";
-            a.click();
+            filename = "faucet.yaml";
+            filetype = "text/plain";
+            docker.downloadFile(data, filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -163,13 +237,9 @@ docker.prototype.getOFRules = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "application/zip"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "rules.zip";
-            a.click();
+            filename = "rules.zip"
+            filetype = "application/zip";
+            docker.downloadFile(data, filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -184,13 +254,9 @@ docker.prototype.getTopologyConfig = function () {
 
     $.ajax(url)
         .done(function (data) {
-            var a = document.createElement("a");
-            var file = new Blob([data], {
-                type: "text/plain"
-            });
-            a.href = URL.createObjectURL(file);
-            a.download = "topology.json";
-            a.click();
+            filename = "topology.json";
+            filetype = "text/json";
+            docker.downloadFile(JSON.stringify(data, null, '\t'), filename, filetype);
         })
         .fail(function () {
             alert("Something went wrong");
@@ -209,4 +275,68 @@ docker.prototype.createButton = function (label, func) {
     button.onclick = func;
 
     return button;
+}
+
+
+/**
+ * Helper function to display the configuration used within Cerberus
+ */
+docker.prototype.getCerberusConfig = function () {
+    textArea = document.getElementById("cerberusOutput");
+    textArea.innerHTML = "";
+    let url = window.location.origin + "/miru/getCerberusConfig"
+    var oldVal = "Getting Cerberus configuration...";
+    var newVal = "";
+    var t = document.createTextNode(oldVal);
+    textArea.append(t);
+    $.ajax(url)
+        .done(function (data) {
+            console.log(data);
+            text = JSON.stringify(data, null, "\t")
+            textArea.append(text);
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+}
+
+/**
+ * Helper function to downlaod the cerberus configuration from miru backend.
+ * Calls on {@link docker.downloadFile} to download the file.
+ */
+docker.prototype.downloadCerberusConfig = function() {
+    let url = window.location.origin + "/miru/getCerberusConfig";
+    $.ajax(url)
+        .done(function (data) {
+            filename = "cerberus.json";
+            filetype = "text/json";
+            docker.downloadFile(JSON.stringify(data, null, '\t'), filename, filetype);
+
+        })
+        .fail(function () {
+            alert("Something went wrong");
+        });
+}
+
+/**
+ *
+ * Helper funtion that downloads the inputData with the filename parameter.
+ * TypeString is used to specify the type of file, by default it is text/plain
+ * @param {Object} inputData - Raw data to be downloaded.
+ * @param {string} filename - The filename to store the downloaded file as, including the extension.
+ * @param {string} [typeString="text/plain"] - Type of file in string, i.e text/json or text/plain.
+ * @namespace
+ */
+docker.downloadFile = function(inputData, filename, typeString="text/plain") {
+
+    // var dataToSave = `data:${typeString};charset=utf-8;${encodeURIComponent(inputData)}`;
+    let dataToSave = new Blob([inputData], {
+        type: typeString })
+    var downloadHandler = document.createElement('a');
+    // downloadHandler.href = URL.createObjectURL(dataToSave);
+    downloadHandler.href = URL.createObjectURL(dataToSave);
+    downloadHandler.download = filename;
+    downloadHandler.click();
+    downloadHandler.remove();
+
 }

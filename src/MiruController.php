@@ -3,10 +3,9 @@
 namespace Holistix\Miru;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 use Illuminate\Http\RedirectResponse;
-
-use D2EM;
 
 use IXP\Http\Controllers\{
     App,
@@ -14,9 +13,8 @@ use IXP\Http\Controllers\{
     Controller
 };
 
-use Entities\{
-    Switcher    as SwitcherEntity
-};
+use IXP\Models\Switcher;
+use IXP\Models\Log;
 use Illuminate\View\View;
 use IXP\Utils\View\Alert\Alert;
 use IXP\Utils\View\Alert\Container as AlertContainer;
@@ -43,11 +41,10 @@ class MiruController extends Controller
     {
         $URGE = false;
         $deploy = false;
-        // Find switches that's been configured and are active
-        $sw_array = array();
-        foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
-            $sw_array[ $sw->getName() ] = $sw->getId();
-        }
+        $sw_array = Switcher::where( 'active', true )
+            ->orderBy( 'name' )->get()
+            ->keyBy( 'id' );
+
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
         if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
@@ -64,7 +61,6 @@ class MiruController extends Controller
             'switches' => $switches
         ]);
     }
-
 
     /**
      * Miru
@@ -76,10 +72,9 @@ class MiruController extends Controller
         $URGE = false;
         $deploy = false;
         // Find switches that's been configured and are active
-        $sw_array = array();
-        foreach (D2EM::getRepository( SwitcherEntity::class )->getFiltered(true) as $sw){
-            $sw_array[ $sw->getName() ] = $sw->getId();
-        }
+        $sw_array = Switcher::where( 'active', true )
+            ->orderBy( 'name' )->get()
+            ->keyBy( 'id' );
         $switches = json_encode($sw_array);
         // Checks if urge has been configured
         if (config("custom.urge.dir") != NULL or config("custom.urge.dir") != ""){
@@ -96,7 +91,6 @@ class MiruController extends Controller
             'switches' => $switches
         ]);
     }
-
 
     /**
      * runAthos
@@ -116,7 +110,6 @@ class MiruController extends Controller
         $out = $process->getOutput();
         return $out;
     }
-
 
     /**
      * testConfigWithOutput
@@ -152,7 +145,6 @@ class MiruController extends Controller
 
         pclose($proc);
     }
-
 
     /**
      * deploy
@@ -282,8 +274,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/faucet/faucet.yaml";
         $faucetFile = fopen($fileName, "w+");
-        // file_put_contents($faucetFile, ($request->input('msg')));
-        // chmod($fileName, 0664);
         fwrite($faucetFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;
@@ -299,8 +289,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/athos/topology.json";
         $topologyFile = fopen($fileName, "w+");
-        // chmod($fileName, 0664);
-        // file_put_contents($topologyFile, ($request->input('msg')));
         fwrite($topologyFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;
@@ -316,8 +304,6 @@ class MiruController extends Controller
         $dir = config("custom.athos.dir", "/athos");
         $fileName = "$dir/etc/athos/graph.xml";
         $graphFile = fopen($fileName, "w+");
-        // chmod($fileName, 0664);
-        // file_put_contents("$dir/etc/mixtt/graph.xml", ($request->input('msg')));
         fwrite($graphFile, ($request->input('msg')));
         $out = readfile($fileName);
         return $out;
@@ -326,5 +312,63 @@ class MiruController extends Controller
     public function dashboard(): View {
         return view('miru::dashboard');
     }
+
+
+    public function getCerberusConfig(Request $request): JsonResponse {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "get_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+        // $clean2 = json_decode($cleanedResponse, true);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
+    }
+
+    public function pushCerberusConfig(Request $request): JsonResponse {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "push_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
+    }
+
+    public function rollbackCerberusConfig(Request $request): JsonResponse {
+
+        $curl = curl_init();
+        $url = sprintf("%s/%s", config("custom.cerberus.api_url"), "rollback_to_last_config");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curl);
+
+        $cleanedResponse = json_decode($result, true);
+        
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return response()->json( $cleanedResponse);
+    }
+
 
 }

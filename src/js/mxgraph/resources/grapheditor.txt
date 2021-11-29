@@ -1,11 +1,6 @@
 # Resources from graph.properties
 alreadyConnected=Nodes already connected
 cancel=Cancel
-connectixp=Connect to IXP Manager
-umbrella=Generate Config
-generateRun=Start tests
-testeroutput=Run Athos with output
-tester=Run Athos
 close=Close
 collapse-expand=Collapse/Expand
 containsValidationErrors=Contains validation errors
@@ -327,3 +322,11 @@ writingDirection=Writing Direction
 zoom=Zoom
 zoomIn=Zoom In
 zoomOut=Zoom Out
+# Miru
+connectixp=Connect to IXP Manager
+umbrella=Generate Config
+generateRun=Start tests
+testeroutput=Run Athos with output
+tester=Run Athos
+getCerberusConfig=Download Cerberus config
+rollback=Rollback Cerberus config

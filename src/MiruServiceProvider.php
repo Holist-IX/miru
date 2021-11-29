@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\Route;
 
 use IXP\Providers\IxpServiceProvider;
 
-use Auth, Cache, D2EM, View;
+use Auth, Cache, View;
 
-use Entities\{
-    Customer    as CustomerEntity,
-    User as UserEntity
-};
+use IXP\Models\Customer;
+use IXP\Models\User;
 
 class MiruServiceProvider extends IxpServiceProvider
 {
@@ -22,9 +20,8 @@ class MiruServiceProvider extends IxpServiceProvider
      * @return void
      */
 
-    public function register()
+    public function register(): void
     {
-        //
         $this->app->make('Holistix\Miru\MiruController');
         $this->loadViewsFrom(__DIR__.'/views', 'miru');
 
@@ -35,14 +32,15 @@ class MiruServiceProvider extends IxpServiceProvider
 
                     // get an array of customer id => names
                     if( !( $customers = Cache::get( 'admin_home_customers' ) ) ) {
-                        $customers = D2EM::getRepository( CustomerEntity::class )->getNames( true );
+                        $customers = Customer::select( ['id', 'name'] )->current()->orderBy( 'name' )->get()->keyBy( 'id' )->toArray();
                         Cache::put( 'admin_home_customers', $customers, 3600 );
                     }
-
                     $view->with( 'dd_customer_id_name', $customers );
                 }
 
             });
+
+        $this->mapMiruRoutes();
         });
     }
 
@@ -51,16 +49,12 @@ class MiruServiceProvider extends IxpServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-        //
-        $this->mapMiruRoutes();
-    }
+    public function boot():void{}
 
     protected function mapMiruRoutes()
     {
         Route::group([
-                        'middleware' => config( 'google2fa.enabled' ) ? [ 'web' , 'auth' , '2fa' , 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ] : [ 'web' , 'auth', 'assert.privilege:' . UserEntity::AUTH_SUPERUSER ],
+                        'middleware' => config( 'google2fa.enabled' ) ? [ 'web' , 'auth' , '2fa' , 'assert.privilege:' . User::AUTH_SUPERUSER ] : [ 'web' , 'auth', 'assert.privilege:' . User::AUTH_SUPERUSER ],
                         'namespace' => 'Holistix\Miru'
                     ], function ($router) {
                 include __DIR__.'/routes.php';
