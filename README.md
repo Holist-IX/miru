@@ -1,4 +1,4 @@
-## Miru (Holsi
+## Miru (Holstix)
 
 Miru is designed as a network diagramming and planning tool for Internet
 eXchange points. It is the diagramming tool that as part of the HolistIX project.
@@ -21,7 +21,7 @@ incompatible.
 ### IXP Manager
 This guide will be based on and follow on from the
 [IXP Manager install instructions](https://docs.ixpmanager.org/install/automated-script/).
-The installation instructions uses the default install location as below, change it as is appropriate:
+The installation instructions use the default install location as below, change it as is appropriate:
 
 ```bash
 IXPROOT=/srv/ixpmanager
@@ -37,7 +37,7 @@ The packages are now installed however we still need to do a couple more steps
 so that we can have access to it within IXP Manager. Now we need to add the
 included skins from the package to be able to use the Miru package.
 
-The script below will set a softlink within IXP Manager's skinning folder,
+The script below will set a soft link within IXP Manager's skinning folder,
 this helps keeps the relevant parts updated as Miru gets updated.
 
 ```bash
@@ -75,10 +75,24 @@ switches. These switch objects can be dragged and dropped on to the canvas.
 
 > _Note:_ Currently there is no way in IXP Manager to declare datapath ids (dpids). If you intend to use the config generated as is for production, right-click on the switch object on the canvas, click on `Edit Data...` -> `Add Property` and add a property with the key "dpid" and the value with the switch's dpid.
 
-Switches can be connected by hovering over a switch object, clicking and then dragging one of the arrows that appears and connecting it to another switch. Miru will find available ports on both of the switches and associate those together as a link. If the link comes back as `undefined` please ensure that each switch has at least 1 port that is set to `core` and is not currently being used by another link.
+Switches can be connected by hovering over a switch object, clicking and then
+dragging one of the arrows that appears and connecting it to another switch.
+Miru will find available ports on both of the switches and associate those
+together as a link. If the link comes back as `undefined` please ensure that
+each switch has at least 1 port that is set to `core` and is not currently
+being used by another link.
 
-If you would like to change the ports that Miru has selected, you can right-click on the link and select `Edit link between switches` and choose from the available ports. If the port you want is not there, please check if it is allocated to another link, if not please ensure that it has been designated as a `Core` port within IXP Manager.
+If you would like to change the ports that Miru has selected, you can
+right-click on the link and select `Edit link between switches` and choose from
+the available ports. If the port you want is not there, please check if it is
+allocated to another link, if not please ensure that it has been designated as
+a `Core` port within IXP Manager.
 
-Once you have a topology that is representative of your network, you can generate and test configurations from `File` -> `Start tests`. This will generate a Faucet Config based on the [umbrella switching fabric](https://hal.archives-ouvertes.fr/hal-01862776), and store it within `$ATHOSROOT\etc\faucet\faucet.yaml` and a network topology file at `$ATHOSROOT\etc\athos\topology.json`. It will then start the `runDocker.sh` within `$ATHOSROOT` and start an athos docker container loaded with our new configs. This will emulate the network drawn in Miru and test connectivity between all hosts, and then report back the results. For more information check out the [athos repo](https://github.com/Holist-IX/athos).
+Once you have a topology that is representative of your network, you can
+generate and test configurations from `File` -> `Start tests`. Miru will
+proceed to generate a topology representation and store them in the athos
+directory declared in `custom.php`. This will emulate the network drawn in Miru
+and test connectivity between all hosts, and then report back the results. For
+more information check out the [athos repo](https://github.com/Holist-IX/athos).
 
 > _Note:_ If this step fail it is most likely due to permission issues. Ensure that `$MY_WWW_USER` has permission to read and write in `$ATHOSROOT`. Future updates to Athos will remove this requirement.
