@@ -976,7 +976,7 @@ EditorUi.prototype.menubarHeight = 30;
 /**
  * Specifies the width of the format panel should be enabled. Default is true.
  */
-EditorUi.prototype.formatEnabled = true;
+EditorUi.prototype.formatEnabled = false;
 
 /**
  * Specifies the width of the format panel. Default is 240.
