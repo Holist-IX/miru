@@ -40,9 +40,10 @@ return [
     // ],
     'athos' => [
         'dir' => '/athos',
+        'api_url' => 'http://127.0.0.1:8989'
     ],
     'cerberus' => [
-        'api_url' => 'http://localhost:8080/api',
+        'api_url' => 'http://127.0.0.1:8080/api',
     ]
     //'urge' => [
     //    'dir'=> '/urge',

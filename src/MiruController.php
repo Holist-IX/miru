@@ -119,31 +119,54 @@ class MiruController extends Controller
     public function testConfigWithOutput()
     {
         header('X-Accel-Buffering: no');
-        $dir = config("custom.athos.dir", "/athos");
-        $urge_dir = config("custom.urge.dir");
-        if ($urge_dir != NULL or $urge_dir != "")
-        {
-            $proc_name = "$dir/runDocker.sh urge";
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != ""){
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "run_athos");
+            $result = '';
+            $callback = function($ch, $str) {
+                global $result;
+                $result .= $str;
+                echo $str;
+                @ flush();
+                return strlen($str);
+            };
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_WRITEFUNCTION, $callback);
+
+            curl_exec($curl);
+
+            curl_close($curl);
+
+        } else {
+            $dir = config("custom.athos.dir", "/athos");
+            $urge_dir = config("custom.urge.dir");
+            if ($urge_dir != NULL or $urge_dir != "")
+            {
+                $proc_name = "$dir/runDocker.sh urge";
+            }
+            else
+            {
+                $proc_name = "$dir/runDocker.sh output";
+            }
+
+            $proc = popen("bash $proc_name", 'r');
+            $live_output     = "";
+            $complete_output = "";
+
+            while (!feof($proc))
+            {
+                $live_output     = fread($proc, 1024);
+                $complete_output = $complete_output . $live_output;
+                echo $live_output;
+                @ flush();
+            }
+
+            pclose($proc);
+
         }
-        else
-        {
-            $proc_name = "$dir/runDocker.sh output";
-        }
-
-        $proc = popen("bash $proc_name", 'r');
-
-        $live_output     = "";
-        $complete_output = "";
-
-        while (!feof($proc))
-        {
-            $live_output     = fread($proc, 1024);
-            $complete_output = $complete_output . $live_output;
-            echo $live_output;
-            @ flush();
-        }
-
-        pclose($proc);
     }
 
     /**
@@ -235,18 +258,39 @@ class MiruController extends Controller
      */
     public function getXML()
     {
-        $dir = config("custom.athos.dir", "/athos");
-        $fpath = "$dir/etc/athos/graph.xml";
-        // Checks if an xml file has been setup before
-        if (is_file($fpath)) {
-            $file = fopen($fpath, "r") or die("Unable to open the file");
-            $out = fread($file,filesize($fpath));
-            fclose($file);
+        $out = "";
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != ""){
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "get_xml");
+
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+            $out = curl_exec($curl);
+
+            curl_close($curl);
+
+        } else {
+            $dir = config("custom.athos.dir", "/athos");
+            $fpath = "$dir/etc/athos/graph.xml";
+            // Checks if an xml file has been setup before
+            if (is_file($fpath)) {
+                $file = fopen($fpath, "r") or die("Unable to open the file");
+                $out = fread($file,filesize($fpath));
+                fclose($file);
+            }
+        }
+        if ($out != "")
+        {
             return $out;
         }
-        else {
+        else
+        {
             return false;
         }
+
     }
 
     /**
@@ -256,12 +300,29 @@ class MiruController extends Controller
      */
     public function getLatestLogs()
     {
-        $dir = config("custom.athos.dir", "/athos");
-        $fpath = "$dir/ixpman_files/output.txt";
-        $file = fopen($fpath, "r");
-        $out = fread($file,filesize($fpath));
-        fclose($file);
-        return $out;
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != ""){
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "get_logs");
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+
+            curl_exec($curl);
+
+            curl_close($curl);
+        }
+        else
+        {
+            $dir = config("custom.athos.dir", "/athos");
+            $fpath = "$dir/ixpman_files/output.txt";
+            $file = fopen($fpath, "r");
+            $out = fread($file,filesize($fpath));
+            fclose($file);
+            return $out;
+        }
+
     }
 
     /**
@@ -271,12 +332,34 @@ class MiruController extends Controller
      * @return void
      */
     public function saveFaucet( Request $request) {
-        $dir = config("custom.athos.dir", "/athos");
-        $fileName = "$dir/etc/faucet/faucet.yaml";
-        $faucetFile = fopen($fileName, "w+");
-        fwrite($faucetFile, ($request->input('msg')));
-        $out = readfile($fileName);
-        return $out;
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != ""){
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "save_faucet");
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+            $proc = curl_exec($curl);
+
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return $err;
+            }
+            else {
+                return $proc;
+            }
+        } else {
+            $dir = config("custom.athos.dir", "/athos");
+            $fileName = "$dir/etc/faucet/faucet.yaml";
+            $faucetFile = fopen($fileName, "w+");
+            fwrite($faucetFile, ($request->input('msg')));
+            $out = readfile($fileName);
+            return $out;
+        }
+
     }
 
     /**
@@ -286,12 +369,42 @@ class MiruController extends Controller
      * @return void
      */
     public function saveTopo( Request $request) {
-        $dir = config("custom.athos.dir", "/athos");
-        $fileName = "$dir/etc/athos/topology.json";
-        $topologyFile = fopen($fileName, "w+");
-        fwrite($topologyFile, ($request->input('msg')));
-        $out = readfile($fileName);
-        return $out;
+        $debug_file = "/athos/debug.txt";
+        $debug = fopen($debug_file, "w+");
+        fwrite($debug, $request->input('msg'));
+
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != "") {
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "push_config");
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($request->input('msg'))
+            ));
+
+            $proc = curl_exec($curl);
+
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return $err;
+            }
+            else {
+                return $proc;
+            }
+        } else {
+            $dir = config("custom.athos.dir", "/athos");
+            $fileName = "$dir/etc/athos/topology.json";
+            $topoFile = fopen($fileName, "w+");
+            fwrite($topoFile, ($request->input('msg')));
+            $out = readfile($fileName);
+            return $out;
+        }
+
     }
 
     /**
@@ -301,12 +414,35 @@ class MiruController extends Controller
      * @return
      */
     public function saveXML( Request $request) {
-        $dir = config("custom.athos.dir", "/athos");
-        $fileName = "$dir/etc/athos/graph.xml";
-        $graphFile = fopen($fileName, "w+");
-        fwrite($graphFile, ($request->input('msg')));
-        $out = readfile($fileName);
-        return $out;
+
+        if (config("custom.athos.api_url") != NULL or config("custom.athos.api_url") != "") {
+            $curl = curl_init();
+            $url = sprintf("%s/%s", config("custom.athos.api_url"), "save_xml");
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+            $proc = curl_exec($curl);
+
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+                return $err;
+            }
+            else {
+                return $proc;
+            }
+
+        } else {
+            $dir = config("custom.athos.dir", "/athos");
+            $fileName = "$dir/etc/athos/graph.xml";
+            $graphFile = fopen($fileName, "w+");
+            fwrite($graphFile, ($request->input('msg')));
+            $out = readfile($fileName);
+            return $out;
+        }
     }
 
     public function dashboard(): View {
@@ -325,7 +461,6 @@ class MiruController extends Controller
         $result = curl_exec($curl);
 
         $cleanedResponse = json_decode($result, true);
-        // $clean2 = json_decode($cleanedResponse, true);
         $err = curl_error($curl);
         curl_close($curl);
 
@@ -363,7 +498,7 @@ class MiruController extends Controller
         $result = curl_exec($curl);
 
         $cleanedResponse = json_decode($result, true);
-        
+
         $err = curl_error($curl);
         curl_close($curl);
 
