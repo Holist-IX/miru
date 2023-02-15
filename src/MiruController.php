@@ -422,7 +422,11 @@ class MiruController extends Controller
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($curl, CURLOPT_POSTFIELDS, $request->input('msg'));
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+		        'Content-Type: text/plain',
+		        'Content-Length: ' . strlen($request->input('msg'))
+ 	        ));
 
             $proc = curl_exec($curl);
 
@@ -435,14 +439,15 @@ class MiruController extends Controller
                 return $proc;
             }
 
-        } else {
+    	} else {
+
             $dir = config("custom.athos.dir", "/athos");
             $fileName = "$dir/etc/athos/graph.xml";
             $graphFile = fopen($fileName, "w+");
             fwrite($graphFile, ($request->input('msg')));
             $out = readfile($fileName);
             return $out;
-        }
+	    }
     }
 
     public function dashboard(): View {

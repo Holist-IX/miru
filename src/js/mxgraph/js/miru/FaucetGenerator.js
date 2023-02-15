@@ -20,7 +20,7 @@ FaucetGenerator.prototype.init = function () {
   this.topology.init();
   var topo = this.topology.generateTopology();
   this.topology.saveTopo(topo);
-  this.generateConfig(this.topology);
+  // this.generateConfig(this.topology);
   this.saveXml();
 }
 

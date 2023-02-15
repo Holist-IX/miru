@@ -72,7 +72,7 @@ docker.prototype.testerOutput = function (textarea, btns) {
     };
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
-            console.log("Complete = " + xhr.responseText);
+            // console.log("Complete = " + xhr.responseText);
             me.addCerberusButtons(btns);
         }
     };
